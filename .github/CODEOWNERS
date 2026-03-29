@@ -1,0 +1,26 @@
+# Default owner
+* @YOUR_GITHUB_USERNAME
+
+# Core app
+/app/api/ @YOUR_GITHUB_USERNAME
+/app/core/ @YOUR_GITHUB_USERNAME
+/app/ai/ @YOUR_GITHUB_USERNAME
+/app/retrieval/ @YOUR_GITHUB_USERNAME
+/app/ingestion/ @YOUR_GITHUB_USERNAME
+
+# Scripts and evaluation
+/scripts/ @YOUR_GITHUB_USERNAME
+/data/evaluation/ @YOUR_GITHUB_USERNAME
+
+# Governance and docs
+/AGENTS.md @YOUR_GITHUB_USERNAME
+/docs/status.md @YOUR_GITHUB_USERNAME
+/docs/manual_progress.md @YOUR_GITHUB_USERNAME
+/docs/roadmap.md @YOUR_GITHUB_USERNAME
+/docs/architecture-decisions.md @YOUR_GITHUB_USERNAME
+/docs/codex_tasks.md @YOUR_GITHUB_USERNAME
+/docs/project-governance.md @YOUR_GITHUB_USERNAME
+/docs/task-workflow.md @YOUR_GITHUB_USERNAME
+
+# CI and repo controls
+/.github/ @YOUR_GITHUB_USERNAME
