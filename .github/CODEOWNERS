@@ -1,26 +1,26 @@
 # Default owner
-* @YOUR_GITHUB_USERNAME
+* @ialpay
 
 # Core app
-/app/api/ @YOUR_GITHUB_USERNAME
-/app/core/ @YOUR_GITHUB_USERNAME
-/app/ai/ @YOUR_GITHUB_USERNAME
-/app/retrieval/ @YOUR_GITHUB_USERNAME
-/app/ingestion/ @YOUR_GITHUB_USERNAME
+/app/api/ @ialpay
+/app/core/ @ialpay
+/app/ai/ @ialpay
+/app/retrieval/ @ialpay
+/app/ingestion/ @ialpay
 
 # Scripts and evaluation
-/scripts/ @YOUR_GITHUB_USERNAME
-/data/evaluation/ @YOUR_GITHUB_USERNAME
+/scripts/ @ialpay
+/data/evaluation/ @ialpay
 
 # Governance and docs
-/AGENTS.md @YOUR_GITHUB_USERNAME
-/docs/status.md @YOUR_GITHUB_USERNAME
-/docs/manual_progress.md @YOUR_GITHUB_USERNAME
-/docs/roadmap.md @YOUR_GITHUB_USERNAME
-/docs/architecture-decisions.md @YOUR_GITHUB_USERNAME
-/docs/codex_tasks.md @YOUR_GITHUB_USERNAME
-/docs/project-governance.md @YOUR_GITHUB_USERNAME
-/docs/task-workflow.md @YOUR_GITHUB_USERNAME
+/AGENTS.md @ialpay
+/docs/status.md @ialpay
+/docs/manual_progress.md @ialpay
+/docs/roadmap.md @ialpay
+/docs/architecture-decisions.md @ialpay
+/docs/codex_tasks.md @ialpay
+/docs/project-governance.md @ialpay
+/docs/task-workflow.md @ialpay
 
 # CI and repo controls
-/.github/ @YOUR_GITHUB_USERNAME
+/.github/ @ialpay
