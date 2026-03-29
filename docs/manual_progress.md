@@ -69,3 +69,38 @@ Working local development environment now includes:
 
 ## Next Step
 Add developer usability improvements and project run documentation.
+
+
+## Step 7 — Repository Governance Baseline
+Completed tasks:
+
+- Hardened `.gitignore`
+- Rewrote `AGENTS.md` as a stable operating policy
+- Added `docs/project-governance.md`
+- Added `docs/task-workflow.md`
+- Added `docs/operating-model.md`
+- Added pull request template
+- Added `CODEOWNERS`
+- Added CI workflow with `verify` check
+- Added secret scan workflow with `secret-scan` check
+- Pushed repository to GitHub
+- Enabled protected pull-request workflow on `main`
+- Validated pull-request flow with required checks
+
+Operating result:
+
+- Important changes now go through task branches and pull requests
+- `verify` and `secret-scan` are required before merge
+- Builder and Historian are separated roles
+- Repository documents now act as shared project memory
+
+## Current Status
+Working project baseline now includes:
+
+- Local Ollama runtime
+- Local Qdrant vector database
+- FastAPI application shell and project structure
+- Governance baseline for controlled GitHub-based development workflow
+
+## Next Step
+Add next task definitions, create the prompt library, and begin using the protected workflow for all future task implementation.
