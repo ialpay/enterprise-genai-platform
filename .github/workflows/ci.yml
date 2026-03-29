@@ -26,14 +26,24 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           if [ -d tests ]; then pip install pytest; fi
 
-      - name: Compile Python files
+      - name: Compile Python files (app/scripts/tests)
         run: |
-          python -m compileall app scripts
+          paths="app scripts"
+          if [ -d tests ]; then paths="$paths tests"; fi
+          python -m compileall $paths
 
-      - name: Run tests if present
-        run: |
-          if [ -d tests ]; then python -m pytest -q; else echo "No tests directory present"; fi
+      - name: Run tests
+        if: ${{ hashFiles('tests/**') != '' }}
+        run: python -m pytest -q
 
-      - name: Run evaluation if present
-        run: |
-          if [ -f scripts/run_eval.py ]; then python scripts/run_eval.py; else echo "No evaluation runner present"; fi
+      - name: Skip tests (none present)
+        if: ${{ hashFiles('tests/**') == '' }}
+        run: echo "No tests directory present"
+
+      - name: Run evaluation
+        if: ${{ hashFiles('scripts/run_eval.py') != '' }}
+        run: python scripts/run_eval.py
+
+      - name: Skip evaluation (no runner)
+        if: ${{ hashFiles('scripts/run_eval.py') == '' }}
+        run: echo "No evaluation runner present"
