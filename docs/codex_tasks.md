@@ -3924,3 +3924,78 @@ Strengthen CI structure without overcomplicating it.
 - CI workflow is clearer and easier to maintain
 - verification stages are easier to understand
 - required protection flow remains functional
+
+## Task 52 — Reconcile and import current local project baseline
+
+Bring the important untracked local project content under version control in a controlled way, without mixing in junk, runtime state, or accidental local-only files.
+
+### Goal
+
+Make the repository on GitHub match the real current local project baseline so future Planner, Builder, Historian, and Verifier runs all work from the same source-controlled project state.
+
+### Modify
+
+- tracked repository contents as needed to import the valid local baseline
+- `.gitignore` only if additional ignore rules are genuinely needed
+
+### Do not modify
+
+- live application behavior unless required only to import already-existing local baseline files
+- routes
+- schemas
+- retrieval behavior
+- prompt behavior
+- evaluation behavior
+- CI protections
+- GitHub rules/rulesets
+
+### Requirements
+
+1. Inspect the current untracked local content first.
+   - Review these areas before making changes:
+     - `app/ai/`
+     - `app/ingestion/`
+     - `app/retrieval/`
+     - `data/`
+     - `scripts/`
+     - `docs/architecture-decisions.md`
+     - `docs/architecture-packaging.md`
+     - `docs/project-walkthrough.md`
+     - `docs/roadmap.md`
+
+2. Categorize untracked content into three buckets:
+   - import now
+   - ignore/remove
+   - needs special handling
+
+3. Import only files that are real project assets.
+   - source files
+   - valid project docs
+   - evaluation/input files genuinely needed by the project
+   - scripts genuinely part of the project
+
+4. Do not import:
+   - local runtime state
+   - caches
+   - generated storage
+   - secrets
+   - machine-specific junk
+   - accidental editor/system artifacts
+
+5. Update `.gitignore` only if the reconciliation reveals additional ignore needs.
+
+6. Keep this task as a reconciliation/import task.
+   - do not opportunistically refactor application code
+   - do not redesign architecture
+   - do not rewrite unrelated docs
+
+7. Preserve reviewability.
+   - the resulting change should be understandable as a baseline import/reconciliation change
+
+### Acceptance criteria
+
+- the important current local project baseline is brought under version control
+- junk/runtime/local-only artifacts are not imported
+- `.gitignore` is updated only if needed
+- the repository on GitHub better matches the actual current local project state
+- no unrelated behavioral refactors are introduced
