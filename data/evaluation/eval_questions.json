@@ -1,0 +1,17 @@
+[
+  {
+    "id": "baseline_01",
+    "question": "What is the platform status?",
+    "expected_answer": "This is a placeholder response."
+  },
+  {
+    "id": "baseline_02",
+    "question": "How do I start the platform?",
+    "expected_answer": "This is a placeholder response."
+  },
+  {
+    "id": "baseline_03",
+    "question": "What is the AI usage policy?",
+    "expected_answer": "This is a placeholder response."
+  }
+]
