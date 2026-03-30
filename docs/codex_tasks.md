@@ -3999,3 +3999,88 @@ Make the repository on GitHub match the real current local project baseline so f
 - `.gitignore` is updated only if needed
 - the repository on GitHub better matches the actual current local project state
 - no unrelated behavioral refactors are introduced
+
+## Task 53 — Reconcile evaluation baseline with placeholder API
+
+Restore a minimal, deterministic evaluation runner and dataset that match the placeholder `/ask` API baseline.
+
+Completed scope:
+- `scripts/run_eval.py` aligned to the placeholder API response shape
+- `data/evaluation/eval_questions.json` restored with a minimal dataset
+
+## Task 54 — Add placeholder API test baseline
+
+Introduce the first lightweight pytest tests covering the placeholder `/health` and `/ask` endpoints.
+
+Completed scope:
+- `tests/` created with deterministic route-level tests
+- `pytest` added to requirements only if needed
+
+## Task 55 — Reserved / Unused
+
+Intentionally left unused to preserve historical numbering.
+
+## Task 56 — Reconcile status and roadmap to verified baseline
+
+Align `docs/status.md` and `docs/roadmap.md` to the verified placeholder API baseline and current operating model.
+
+## Task 57 — Record operating-model and authoritative-baseline decisions
+
+Capture the operating model and authoritative-baseline decisions in repository docs.
+
+## Task 58 — Replace placeholder `/ask` with a real Ollama-backed answer path
+
+Replace the placeholder `/ask` response with an Ollama-backed path while keeping tests deterministic via mocking and evaluation CI-safe.
+
+
+
+## Task 60 — Reconcile task registry history
+
+Bring `docs/codex_tasks.md` into line with the actual completed work so the repository task ledger matches the real project history.
+
+### Goal
+
+Record the missing post-Task-52 tasks that were completed during repository governance hardening, baseline reconciliation, and the first real `/ask` application upgrade.
+
+### Modify
+
+- `docs/codex_tasks.md`
+
+### Do not modify
+
+- application code
+- routes
+- schemas
+- retrieval
+- ingestion
+- evaluation behavior
+- CI workflows
+- roadmap/status/progress docs
+- architecture docs
+- prompts
+- scripts
+
+### Requirements
+
+1. Add the missing historical task entries after Task 52:
+   - Task 53 — Reconcile evaluation baseline with placeholder API
+   - Task 54 — Add placeholder API test baseline
+   - Task 56 — Reconcile status and roadmap to verified baseline
+   - Task 57 — Record operating-model and authoritative-baseline decisions
+   - Task 58 — Replace placeholder `/ask` with a real Ollama-backed answer path
+
+2. Keep the recorded task text aligned with the work that was actually completed.
+
+3. Do not invent a substantive Task 55 after the fact.
+   - Leave Task 55 unused, or record it explicitly as reserved/unused if needed for clarity.
+
+4. Do not renumber older tasks.
+
+5. Do not clean up legacy duplicate numbering in unrelated older sections as part of this task.
+   - This task is only for reconciling the missing historical gap after Task 52.
+
+### Acceptance criteria
+
+- `docs/codex_tasks.md` records the missing historical tasks after Task 52
+- task numbering is clearer and better aligned with real repository history
+- no unrelated code or documentation changes are introduced
