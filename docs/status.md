@@ -1,67 +1,70 @@
 # Project Status
 
 ## Date
-2026-03-29
+
+2026-03-30
 
 ## Current Phase
-Governance expansion, operational polish, and packaging maturity.
+
+Repository baseline reconciliation and operating-model hardening.
 
 ## Current Focus
-- Governance expansion
-- Operational maturity refinement
-- Packaging maturity and professional operating model
-- Operate through task branches and pull requests
-- Use GitHub required checks as the first verification gate
-- Separate Planner, Builder, Historian, Verifier, and Owner roles
-- Keep project memory in repository documents instead of chat history
 
-## Current Operating Model
-- Planner = prompt-preparer chat
-- Builder = Codex implementation run
-- Historian = separate Codex run after merge
-- Verifier = GitHub Actions
-- Owner / Approver = repository owner
+- Align repository docs to the actual verified application baseline
+- Preserve governance, workflow, and process maturity already established in the repo
+- Define the next real engineering step from the current placeholder API baseline
 
-## Current Required Checks
-- `verify`
-- `secret-scan`
+## Verified Application Baseline
+
+- FastAPI application shell is present
+- `GET /health` is implemented and verified
+- `POST /ask` still returns a placeholder response
+- Tests and current evaluation behavior align with the placeholder `/ask` baseline
+
+## Repository / Process Baseline
+
+- Repository governance documents are present
+- Operating-model documents are present
+- Prompt roles are present under `prompts/`
+- GitHub workflows are present for verification and secret scanning
+- PR-based, repo-driven workflow is established
+- Protected PR workflow on `main`
+- Required checks:
+  - `verify`
+  - `secret-scan`
+
+## Important Reality Check
+
+Advanced application modules for retrieval, ingestion, prompting, and vector integration exist in the repository tree, but they are not treated as completed live baseline unless they are integrated into the current application flow and verified by the repository’s tests and workflow.
 
 ## Completed Recently
-- Local enterprise-style RAG baseline
-- Retrieval quality baseline
-- Evaluation baseline
-- Governance/safety baseline
-- Operational reliability baseline
-- Packaging baseline
-- Operating model baseline
-- Repository governance baseline established:
-  - `.gitignore` hardened
-  - `AGENTS.md` rewritten as stable operating policy
-  - governance and workflow docs added
-  - PR template and `CODEOWNERS` added
-  - CI workflow added
-  - secret scan workflow added
-  - protected PR flow validated on GitHub
+
+- Repository governance baseline established
+- Task workflow baseline established
+- Operating-model baseline established
+- Prompt-role baseline established
+- CI/workflow baseline established
 
 ## In Progress
-- Expand governance coverage beyond baseline
-- Refine operational workflows and reliability checks
-- Keep packaging documents aligned with current behavior
-- Formalise role-based operating model across Planner, Builder, Historian, and Verifier
+
+- Reconcile strategy and status docs to the actual verified application baseline
+- Record missing architecture and operating-model decisions where needed
+- Re-sequence next tasks from the real current API maturity
 
 ## Next Recommended Work
-1. Update `docs/manual_progress.md`
-2. Add next tasks to `docs/codex_tasks.md`
-3. Create role prompt library under `prompts/`
-4. Begin the next real task using the protected PR workflow
+
+1. Record missing architecture and operating-model decisions
+2. Update task sequencing to reflect the real current baseline
+3. Define the next real engineering task from the placeholder `/ask` baseline
 
 ## Risks / Blockers
-- Limited evaluation dataset size
-- Local-only runtime limits scale testing
-- Single-owner workflow limits strict approval enforcement practicality
+
+- Strategy and status docs can overstate application maturity if not reconciled to the verified code baseline
+- Advanced modules in the tree may be mistaken for completed live functionality
+- Future task planning can drift if sequencing is not reset from the actual baseline
 
 ## Notes
-- `manual_progress.md` is the implementation history
-- `architecture-decisions.md` captures design reasoning
-- `AGENTS.md` contains standing repo rules
-- `project-governance.md`, `task-workflow.md`, and `operating-model.md` define the working method
+
+- `docs/status.md` reflects the live current repository state
+- `docs/roadmap.md` reflects direction, not assumed completion
+- Current baseline truth must be grounded in the integrated application path, tests, and repository workflows
