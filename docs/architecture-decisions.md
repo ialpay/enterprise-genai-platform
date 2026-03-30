@@ -71,3 +71,109 @@ This document records the main architecture decisions made for the current local
 ## Future Evolution Summary
 
 Local runtime and heuristic control choices are designed to evolve toward managed cloud services, stronger guardrails, model-based reranking, and centralized observability as the platform matures.
+## Decision: Use protected pull requests and required checks as the default delivery path
+
+### Decision
+
+Treat pull requests with required repository checks as the standard path for repository changes.
+
+### Context
+
+The repository now includes workflow and governance structure that expects changes to be reviewed and validated through the repository process rather than through ad hoc direct edits alone.
+
+### Why this choice was made
+
+Using protected pull requests and required checks creates a durable control point for quality, consistency, and recovery. It also supports a clearer separation between planning, implementation, review, and repository history.
+
+### Trade-offs
+
+This adds process overhead compared with direct local editing, but it reduces drift, improves auditability, and makes the repository easier to operate as a long-lived engineering asset.
+
+### Future evolution
+
+Required checks, review gates, and branch protection rules may become stricter over time, but the baseline decision remains: repository changes should flow through a validated PR path by default.
+
+
+## Decision: Separate repository work across Planner, Builder, Reviewer, Historian, Verifier, and Owner roles
+
+### Decision
+
+Use an explicit role split for repository work:
+
+- Planner
+- Builder
+- Reviewer
+- Historian
+- Verifier
+- Owner
+
+### Context
+
+The project has grown beyond a simple single-threaded build flow. Planning, implementation, review, documentation maintenance, automated verification, and final acceptance now need clearer separation to avoid confusion and accidental scope drift.
+
+### Why this choice was made
+
+A role split improves task quality and repository discipline.
+
+- Planner defines or refines the next task from repository truth
+- Builder implements the approved task
+- Reviewer checks task scope, correctness, and missing validation
+- Historian updates repository state/history documents after accepted merge
+- Verifier provides objective automated pass/fail through repository checks
+- Owner decides direction, acceptance, and priority
+
+This makes the operating model more explicit and reduces reliance on informal chat memory.
+
+### Trade-offs
+
+This introduces more process structure than a single-agent workflow, but it improves clarity, recovery, and consistency across sessions.
+
+### Future evolution
+
+The exact role boundaries may be refined, but the repository should continue to treat planning, implementation, review, verification, history maintenance, and ownership as distinct responsibilities.
+
+
+## Decision: Use the repository as the project’s working memory
+
+### Decision
+
+Treat repository documents as the authoritative working memory for project direction, current state, implementation history, workflow rules, and recovery.
+
+### Context
+
+Chat history alone is not stable enough to carry project truth across long-running work. The repository now contains roadmap, status, task workflow, operating model, governance, and prompt-role documents intended to preserve that truth explicitly.
+
+### Why this choice was made
+
+Using the repository as working memory makes the project recoverable, reviewable, and less dependent on any single conversation. It also allows future planning and implementation to begin from repository state rather than from reconstructed memory.
+
+### Trade-offs
+
+This requires deliberate document maintenance. If the documents are not kept aligned with repository reality, the operating model becomes misleading instead of helpful.
+
+### Future evolution
+
+The repository may gain stronger reconciliation and review practices over time, but the core decision remains: project memory should live in repository documents rather than in chat memory alone.
+
+
+## Decision: Treat only integrated and verified behavior as the authoritative baseline
+
+### Decision
+
+The authoritative current baseline is defined by integrated application behavior that is visible in the active code path and supported by repository tests and workflow validation.
+
+### Context
+
+The repository contains advanced modules and partially staged functionality that may exist in the tree without being fully integrated into the live route flow or validated by the current test/workflow path.
+
+### Why this choice was made
+
+Code present in the tree does not by itself prove completed baseline functionality. Treating only integrated and verified behavior as authoritative prevents roadmap/status drift, avoids planning from aspirational code, and keeps task sequencing grounded in actual repository reality.
+
+### Trade-offs
+
+This can make the repository appear less mature than the amount of code present might suggest, but it produces a more honest and operationally useful baseline.
+
+### Future evolution
+
+As more functionality becomes integrated and verified, the authoritative baseline can advance. The rule remains the same: presence in the tree is not enough; integration and verification are required.
