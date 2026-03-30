@@ -2,129 +2,95 @@
 
 ## Project Summary
 
-Enterprise GenAI Platform is a local, enterprise-style RAG reference system that demonstrates how to ingest documents, retrieve grounded context, and answer questions with safety and audit controls.
+Enterprise GenAI Platform is a local, enterprise-style GenAI reference system. The current verified baseline is a FastAPI API with a health route and an Ollama-backed `/ask` route, alongside staged repository modules for ingestion, retrieval, prompting, and vector storage.
 
-## Current Local Stack
+## Current Verified Local Stack
 
-- Ollama for local model runtime and embeddings
-- Qdrant for vector storage and similarity search
-- FastAPI for the API layer
-- Python ingestion and retrieval modules
-- Local scripts for start/stop and app.log operations
+- Ollama for the live `/ask` model call
+- FastAPI for the active API layer
+- Python application modules for configuration, schemas, and routing
+- Tests covering the current health and Ollama-backed `/ask` behavior
+
+## Staged Repository Components
+
+The repository also includes staged modules for:
+
+- ingestion and chunking
+- embeddings generation
+- vector storage with Qdrant
+- retrieval orchestration
+- grounded prompt construction
+
+These components are part of the repository architecture, but they are not yet treated as integrated live baseline unless they are connected to the active route and verified.
 
 ## Main Components
 
-- API layer: FastAPI routes, request/response schemas, validation
-- Retrieval layer: query embedding, Qdrant search, reranking, filtering
-- Ingestion layer: loaders, chunking, embedding, vector storage
-- Prompting layer: grounded prompt construction
-- Governance and safety layer: classification, sanitization, refusal handling, audit logs
-- Operational scripts: start/stop workflows, health checks, log capture
+- Live API layer: FastAPI routes, request/response schemas, and Ollama-backed answering
+- Staged retrieval layer: query embedding, Qdrant search, and retrieval helpers
+- Staged ingestion layer: loaders, chunking, embedding, and vector storage support
+- Staged prompting layer: grounded prompt construction helpers
+- Repository governance and operating-model layer: architecture, workflow, and project-control documents
 
-High-level local component layout:
+High-level component layout:
 
 ```mermaid
 flowchart LR
   user[User / Client] --> api[FastAPI API Layer]
-  api --> retrieval[Retrieval Layer]
-  retrieval --> qdrant[Qdrant]
-  api --> prompting[Prompting / Answer Generation]
-  prompting --> ollama[Ollama]
-  sources[Source Documents] --> ingestion[Ingestion Pipeline]
-  ingestion --> qdrant
-  scripts[Start/Stop Scripts] --> api
-  api --> logs[app.log]
+  api --> ollama[Ollama]
+  api --> response[API Response]
+  sources[Source Documents] -. staged .-> ingestion[Ingestion Pipeline]
+  ingestion -. staged .-> qdrant[Qdrant]
+  api -. staged .-> retrieval[Retrieval Layer]
+  retrieval -. staged .-> qdrant
+  api -. staged .-> prompting[Prompt Builder]
 ```
 
-## End-to-End Request Flow
+## Current Live Request Flow
 
 1. Request received on `/ask`
-2. Input validation
-3. Request classification (normal, suspicious_override, hidden_instruction)
-4. Sanitization when required
-5. Retrieval against Qdrant
-6. Threshold filtering and policy-aware ordering
-7. Best-document bias and per-document limits
-8. Second-pass reranking
-9. Grounded prompt construction
-10. Answer generation
-11. Safe response wrapping when required
-12. Audit logging
-13. Response returned
+2. FastAPI validates the request model
+3. The route calls the Ollama client
+4. The API returns the question, model answer, and `source: "ollama"`
+5. If Ollama fails, the route returns HTTP 502
 
 Request flow diagram:
 
 ```mermaid
 flowchart TD
-  req[Request received] --> validate[Input validation]
-  validate --> classify[Request classification]
-  classify --> sanitize{Sanitization needed?}
-  sanitize -->|yes| sanitized[Sanitize question]
-  sanitize -->|no| retrieval[Retrieval]
-  sanitized --> retrieval
-  retrieval --> rerank[Reranking]
-  rerank --> prompt[Prompt construction]
-  prompt --> answer[Answer generation]
-  answer --> refusal{Hidden-instruction?}
-  refusal -->|yes| wrap[Deterministic refusal handling]
-  refusal -->|no| audit[Audit logging]
-  wrap --> audit
-  audit --> resp[Response returned]
+  req[Request received] --> validate[FastAPI request validation]
+  validate --> ollama[Ollama generate call]
+  ollama --> resp[Question + answer + source returned]
+  ollama --> fail{Call failed?}
+  fail -->|yes| err[HTTP 502]
 ```
 
-## Retrieval And RAG Flow
+## Staged RAG And Retrieval Path
 
-- Query expansion for targeted terms
-- Similarity threshold filtering
-- Best-document bias with per-document limits
-- Source-type policy and suppression rules
-- Second-pass reranking using lexical overlap
-- Grounded answer generation from retrieved chunks
+Repository modules indicate the intended next architecture:
 
-## Governance And Safety Controls
+- document ingestion into a vector store
+- embeddings generation for stored content and queries
+- retrieval over Qdrant-backed content
+- grounded prompt construction from retrieved chunks
 
-- Input validation for empty or oversized questions
-- Suspicious override detection
-- Hidden-instruction detection
-- Sanitization of override/hidden-instruction phrases
-- Deterministic refusal handling for hidden-instruction requests
-- Request classification and audit logging
+That path is not yet described as live end-to-end application behavior.
 
-Governance and safety flow:
+## Governance And Operations Positioning
 
-```mermaid
-flowchart TD
-  classify[Request classification] --> normal[normal]
-  classify --> suspicious[suspicious_override]
-  classify --> hidden[hidden_instruction]
-  normal --> grounded[Grounded answer]
-  suspicious --> sanitize_override[Sanitize override phrases]
-  sanitize_override --> grounded
-  hidden --> sanitize_hidden[Sanitize hidden/override phrases]
-  sanitize_hidden --> refusal[Hard-coded refusal]
-  refusal --> grounded
-  grounded --> audit[Audit logging]
-```
-
-## Observability And Operations
-
-- `scripts/start_platform.sh` manages local startup
-- `scripts/stop_platform.sh` stops managed processes
-- Health checks for Ollama, Qdrant, and FastAPI
-- Managed FastAPI logging to `app.log`
-- Basic troubleshooting guidance in README
+- The repository includes governance, workflow, and architecture documentation.
+- Some staged code and prompt helpers reference stronger guardrail-oriented behavior.
+- Request classification, sanitization, deterministic refusal handling, audit logging, and grounded RAG should not be treated as current active-route baseline unless they are integrated and verified.
 
 ## Current Limitations
 
 - Local-only runtime
-- Lightweight guardrails rather than a full policy engine
-- Heuristic reranking rather than model-based reranking
-- Evaluation set is limited in size
+- Live `/ask` is direct Ollama generation rather than retrieval-backed answering
+- Staged retrieval and governance modules are not yet integrated into the verified request path
+- Operational and observability maturity in the docs should be read as repository direction, not as fully verified runtime behavior
 
 ## Future Enterprise/Cloud Mapping
 
-- Managed model runtime replacing local Ollama
-- Managed vector/search service replacing local Qdrant
-- Stronger guardrails and policy enforcement
-- Centralized logging and monitoring
-- Enterprise access control and identity integration
+- Integrate staged retrieval and prompting modules into the live API path
+- Verify grounded-answer behavior through tests
+- Add stronger governance and observability once active in the route
+- Replace local runtime components with managed services as the platform matures
