@@ -8,4 +8,6 @@ class AskRequest(BaseModel):
 
 
 class AskResponse(BaseModel):
+    question: str
     answer: str
+    source: str

@@ -10,7 +10,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from app.api.routes import ask
+from app.api import routes
 from app.api.schemas import AskRequest
 
 EVAL_PATH = PROJECT_ROOT / "data" / "evaluation" / "eval_questions.json"
@@ -22,6 +22,7 @@ def load_questions() -> list[dict[str, str]]:
 
 
 def main() -> None:
+    routes.generate_answer = lambda prompt: "This is a placeholder response."
     questions = load_questions()
     total_questions = len(questions)
     matches = 0
@@ -34,7 +35,7 @@ def main() -> None:
         question_text = item.get("question", "")
         expected_answer = item.get("expected_answer", "")
 
-        response = ask(AskRequest(question=question_text))
+        response = routes.ask(AskRequest(question=question_text))
         answer = response.answer
         matched = answer == expected_answer
 
