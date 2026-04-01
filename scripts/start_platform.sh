@@ -2,6 +2,10 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+cd "$PROJECT_ROOT"
+
 QDRANT_NAME="qdrant"
 QDRANT_URL="http://127.0.0.1:6333/collections"
 OLLAMA_URL="http://127.0.0.1:11434/api/tags"
@@ -53,6 +57,7 @@ echo "Starting Qdrant (if needed)..."
 if docker ps -q -f name=^${QDRANT_NAME}$ | grep -q .; then
   echo "Qdrant container is already running."
 else
+  mkdir -p "${PROJECT_ROOT}/infra/docker/qdrant_storage"
   if docker ps -aq -f name=^${QDRANT_NAME}$ | grep -q .; then
     docker start "${QDRANT_NAME}" >/dev/null
   else
