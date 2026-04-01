@@ -4084,3 +4084,598 @@ Record the missing post-Task-52 tasks that were completed during repository gove
 - `docs/codex_tasks.md` records the missing historical tasks after Task 52
 - task numbering is clearer and better aligned with real repository history
 - no unrelated code or documentation changes are introduced
+
+
+## Milestone Planning Rule
+
+Forward work from Task 61 onward is grouped into milestones rather than treated as unrelated single tasks.
+
+Rules:
+
+- each milestone must produce one meaningful, reviewable achievement
+- do not start a later milestone until the current milestone's implementation tasks are accepted
+- required repository checks must pass before a milestone is treated as complete
+- each milestone ends with a Historian task that records only accepted work
+- after each milestone, Planner and Owner hold a review meeting before authorizing the next milestone
+
+Milestone review meeting must confirm:
+
+- what was actually achieved and verified
+- whether the authoritative baseline changed
+- what remains unstable or misleading
+- whether the next milestone still has the right sequence and scope
+
+The milestones below are the active forward plan and may be re-sequenced only at a milestone review gate.
+
+
+## Milestone 1 — Baseline Truth and Run Coherence
+
+### Meaningful achievement
+
+The repository narrative, dependency/config baseline, validation, and local run path all align to the actual live application behavior.
+
+### Milestone completion rule
+
+Milestone 1 is complete only when Tasks 61 through 65 are accepted, verified where applicable, and the milestone review meeting is held.
+
+## Task 61 — Reconcile descriptive architecture and walkthrough docs to the live baseline
+
+Align descriptive project docs to the actual live repository baseline without overstating retrieval, governance, or observability behavior that is not yet integrated into the active `/ask` path.
+
+### Goal
+
+Make the repository's descriptive narrative honest and operationally useful.
+
+### Modify
+
+- `docs/project-walkthrough.md`
+- `docs/architecture-packaging.md`
+
+### Do not modify
+
+- application code
+- routes
+- tests
+- CI workflows
+- project-state docs
+
+### Requirements
+
+1. Update the docs so they reflect the live baseline:
+   - `/ask` is currently Ollama-backed
+   - retrieval, ingestion, prompt-building, and vector-store modules exist in the tree
+   - those staged modules are not yet counted as integrated live baseline unless wired into the active route and verified
+2. Remove or soften claims of live request classification, sanitization, deterministic refusal handling, audit logging, or end-to-end grounded RAG unless those behaviors truly exist in the active route.
+3. Preserve the value of the docs as architecture/portfolio material without presenting staged code as completed production behavior.
+4. Keep the wording concise and factual.
+
+### Acceptance criteria
+
+- descriptive docs no longer overclaim current live behavior
+- the existence of staged retrieval/governance modules is still documented
+- the docs remain useful as architecture references without misrepresenting the verified baseline
+
+## Task 62 — Stabilize the tracked config and dependency baseline
+
+Bring the tracked module baseline into a coherent install/import state without changing the current live route behavior.
+
+### Goal
+
+Ensure tracked source files do not depend on obviously missing configuration fields or missing declared dependencies.
+
+### Modify
+
+- `app/core/config.py`
+- `requirements.txt`
+
+### Do not modify
+
+- route behavior
+- schemas
+- retrieval logic
+- evaluation behavior
+- project-state docs
+
+### Requirements
+
+1. Add any missing settings fields that are referenced by tracked modules and should exist as part of the local baseline.
+2. Add any missing third-party dependencies that are already imported by tracked baseline modules.
+3. Keep defaults local-first and simple.
+4. Do not change current `/ask` request/response behavior as part of this stabilization task.
+
+### Acceptance criteria
+
+- tracked modules no longer reference obviously missing settings fields
+- imported third-party packages used by tracked baseline modules are declared in `requirements.txt`
+- current live `/ask` behavior remains unchanged
+
+## Task 63 — Add deterministic validation for the live baseline and staged module contracts
+
+Expand lightweight validation so the current live API path and the most important staged-module assumptions are checked without requiring live Ollama or Qdrant services in CI.
+
+### Goal
+
+Improve confidence in the repository baseline without turning CI into an environment-dependent system test.
+
+### Modify
+
+- `tests/`
+- `pytest.ini` only if needed
+
+### Do not modify
+
+- application behavior
+- evaluation runner
+- CI workflows
+- project-state docs
+
+### Requirements
+
+1. Keep all added tests deterministic and CI-safe.
+2. Preserve direct coverage of the live `/ask` success and error paths using mocking where needed.
+3. Add lightweight coverage for staged-module contracts that can fail silently, such as:
+   - config expectations
+   - prompt construction behavior
+   - retrieval helper behavior that can be tested with doubles
+4. Do not require live Ollama, Qdrant, Docker, or a populated vector collection.
+
+### Acceptance criteria
+
+- tests remain deterministic
+- current live `/ask` behavior has direct automated coverage
+- important staged-module assumptions that can be validated locally have automated coverage without external services
+
+## Task 64 — Make the local developer run path coherent with the tracked baseline
+
+Align the developer/operator run path with the actual repository baseline so a local user can understand how to install, start, and stop the system without relying on outdated or missing instructions.
+
+### Goal
+
+Make the local run path explicit, coherent, and consistent with the tracked scripts and live behavior.
+
+### Modify
+
+- `README.md`
+- `docs/local-setup.md`
+- `scripts/start_platform.sh`
+- `scripts/stop_platform.sh`
+
+### Do not modify
+
+- application route behavior
+- retrieval logic
+- CI workflows
+- project-state docs
+
+### Requirements
+
+1. Document the current local dependency install and run flow clearly.
+2. Ensure the docs and scripts agree on environment assumptions such as:
+   - Python environment usage
+   - Ollama availability
+   - Qdrant startup model
+   - FastAPI startup command/path
+3. Keep the scripts pragmatic and local-only.
+4. Do not invent new runtime features beyond what the current baseline needs.
+
+### Acceptance criteria
+
+- a developer can follow the docs to understand the local run path
+- startup and shutdown scripts are consistent with the documented baseline
+- no unrelated feature work is mixed into the task
+
+## Task 65 — Milestone 1 historian update
+
+Record the accepted Milestone 1 changes in the project memory documents after merge.
+
+### Goal
+
+Advance the repository's recorded truth only after the milestone's accepted work is merged.
+
+### Modify
+
+- `docs/status.md`
+- `docs/roadmap.md`
+- `docs/manual_progress.md`
+- `docs/architecture-decisions.md` only if a real design decision changed
+
+### Do not modify
+
+- application code
+- tests
+- CI workflows
+- prompts
+- task definitions outside factual milestone history if not required
+
+### Requirements
+
+1. Record only the accepted and merged Milestone 1 work.
+2. Update the live/project-direction docs to reflect the actual post-milestone baseline.
+3. Do not mark staged or future work as complete.
+4. Update architecture decisions only if the merged changes actually altered a design decision or trade-off.
+
+### Acceptance criteria
+
+- state/history docs reflect the real post-Milestone-1 baseline
+- no unmerged or speculative work is recorded
+
+### Milestone 1 review gate
+
+Before authorizing Milestone 2, Planner and Owner review:
+
+- whether the repo narrative now matches the real live baseline
+- whether the dependency/install/run path is coherent enough to build on
+- whether the next milestone should proceed as planned or be re-sequenced
+
+
+## Milestone 2 — First Grounded Retrieval Path
+
+### Meaningful achievement
+
+`/ask` moves from direct model answering to a first real grounded retrieval flow built from tracked repository documents.
+
+### Milestone completion rule
+
+Milestone 2 is complete only when Tasks 66 through 70 are accepted, verified where applicable, and the milestone review meeting is held.
+
+## Task 66 — Make the ingestion pipeline locally runnable from tracked sources
+
+Turn the staged ingestion path into a coherent local workflow that can load tracked source documents and store their chunks in Qdrant.
+
+### Goal
+
+Prepare a real ingestion baseline before wiring retrieval into the live route.
+
+### Modify
+
+- `app/ingestion/loaders.py`
+- `app/ingestion/chunking.py`
+- `app/retrieval/embeddings.py`
+- `app/retrieval/vector_store.py`
+- `scripts/ingest_documents.py`
+- `requirements.txt` only if genuinely needed
+
+### Do not modify
+
+- `/ask` route behavior
+- project-state docs
+- CI workflows
+
+### Requirements
+
+1. Keep the ingestion path grounded in the tracked raw source folders already present in the repository.
+2. Make the ingestion workflow coherent enough to run locally in the project environment.
+3. Keep failure modes clear and simple.
+4. Do not mix route-integration work into this task.
+
+### Acceptance criteria
+
+- tracked source documents can flow through the ingestion path locally
+- the ingestion/vector-storage path is coherent and reviewable
+- no `/ask` behavior changes are introduced
+
+## Task 67 — Add deterministic retrieval-layer validation before route integration
+
+Add direct validation for retrieval behavior before it is wired into the live route.
+
+### Goal
+
+Prove the retrieval helper behavior is understandable and testable before it becomes part of `/ask`.
+
+### Modify
+
+- `tests/`
+- `scripts/test_retrieval.py` only if needed for a clearer local smoke path
+
+### Do not modify
+
+- live route behavior
+- project-state docs
+- CI workflows
+
+### Requirements
+
+1. Add deterministic tests for retrieval helpers using doubles/fakes where needed.
+2. Cover practical behavior such as:
+   - query expansion
+   - source-policy selection
+   - thresholding
+   - reranking/filtering decisions
+3. Keep the validation independent of live Ollama and Qdrant services.
+
+### Acceptance criteria
+
+- retrieval helper behavior has deterministic automated validation
+- tests do not depend on external services
+- the route is still unchanged after this task
+
+## Task 68 — Integrate minimal grounded retrieval into `/ask`
+
+Introduce the first real grounded answering path by retrieving context, building a grounded prompt, and generating the answer from retrieved material.
+
+### Goal
+
+Move the live route from ungrounded model answering to a minimal grounded retrieval flow.
+
+### Modify
+
+- `app/api/routes.py`
+- `app/ai/prompts.py`
+- `app/retrieval/`
+- `app/api/schemas.py` only if response-shape adjustment is truly required
+
+### Do not modify
+
+- CI workflows
+- project-state docs
+- unrelated governance features not required for the minimal grounded path
+
+### Requirements
+
+1. Retrieve context for the incoming question using the tracked retrieval layer.
+2. Build a grounded prompt from the retrieved results.
+3. Use the model only through the grounded path for this route.
+4. If grounded context is not sufficient, return a clear grounded-answer outcome rather than silently falling back to ungrounded answering.
+5. Keep the implementation simple and reviewable.
+
+### Acceptance criteria
+
+- `/ask` uses retrieval plus grounded prompting
+- the route no longer behaves as a direct ungrounded Ollama passthrough
+- insufficient grounded context is handled explicitly
+
+## Task 69 — Align evaluation and tests to grounded retrieval behavior
+
+Update deterministic validation so the live route's new grounded behavior is measurable without requiring live external services in CI.
+
+### Goal
+
+Keep verification aligned to the real route behavior after retrieval integration.
+
+### Modify
+
+- `tests/`
+- `scripts/run_eval.py`
+- `data/evaluation/eval_questions.json` only if the dataset must be updated to fit the new grounded baseline
+
+### Do not modify
+
+- CI workflows
+- project-state docs
+- unrelated retrieval logic beyond what validation requires
+
+### Requirements
+
+1. Keep evaluation/tests deterministic and CI-safe.
+2. Update mocks/fakes so validation reflects the grounded route shape and behavior.
+3. Make any dataset changes minimal and directly tied to the new grounded baseline.
+
+### Acceptance criteria
+
+- automated validation reflects the grounded `/ask` path
+- CI safety is preserved
+- evaluation behavior is aligned with the actual route
+
+## Task 70 — Milestone 2 historian update
+
+Record the accepted Milestone 2 changes in project memory after merge.
+
+### Goal
+
+Advance the repository's recorded truth only after the first grounded retrieval milestone is actually merged.
+
+### Modify
+
+- `docs/status.md`
+- `docs/roadmap.md`
+- `docs/manual_progress.md`
+- `docs/architecture-decisions.md` only if a real design decision changed
+
+### Do not modify
+
+- application code
+- tests
+- CI workflows
+- prompts
+
+### Requirements
+
+1. Record only the accepted and merged Milestone 2 work.
+2. Reflect the authoritative baseline accurately after the route becomes grounded.
+3. Do not record future governance or ops work as already complete.
+
+### Acceptance criteria
+
+- post-Milestone-2 state/history docs match the merged grounded baseline
+- no speculative future work is recorded as complete
+
+### Milestone 2 review gate
+
+Before authorizing Milestone 3, Planner and Owner review:
+
+- whether grounded retrieval is truly live and verified
+- whether ingestion/retrieval complexity remains understandable
+- whether governance work should now proceed on the live route
+
+
+## Milestone 3 — Governance and Observability on the Live Route
+
+### Meaningful achievement
+
+The grounded `/ask` path gains minimal but real request classification, safety handling, and audit visibility appropriate for the live route.
+
+### Milestone completion rule
+
+Milestone 3 is complete only when Tasks 71 through 75 are accepted, verified where applicable, and the milestone review meeting is held.
+
+## Task 71 — Introduce live request-classification helpers for `/ask`
+
+Add a small deterministic classification layer so the live route can distinguish normal requests from suspicious override attempts and hidden-instruction requests.
+
+### Goal
+
+Create an explicit safety decision point before adding policy behavior to the live route.
+
+### Modify
+
+- `app/api/routes.py`
+- one small helper module under `app/` if needed
+- `tests/` only if direct task-local coverage is needed
+
+### Do not modify
+
+- CI workflows
+- project-state docs
+- unrelated ops/docs work
+
+### Requirements
+
+1. Keep the classification logic deterministic and simple.
+2. Distinguish at least:
+   - normal
+   - suspicious override
+   - hidden-instruction request
+3. Base classification on the original user question text.
+4. Do not yet introduce broad new policy behavior beyond classification itself.
+
+### Acceptance criteria
+
+- the live route has explicit deterministic classification behavior
+- the classification logic is small, understandable, and testable
+
+## Task 72 — Add basic audit logging for the live `/ask` path
+
+Make the live route observable enough to understand what happened during request handling without changing the core grounded-answer objective.
+
+### Goal
+
+Add useful request-level observability before deeper policy handling is introduced.
+
+### Modify
+
+- `app/api/routes.py`
+- logging helpers only if required
+- `tests/` only if needed
+
+### Do not modify
+
+- CI workflows
+- project-state docs
+- unrelated retrieval/ingestion logic
+
+### Requirements
+
+1. Log meaningful request-handling facts for `/ask`.
+2. Keep the logging lightweight and implementation-focused.
+3. Avoid logging secrets or inventing broad observability infrastructure.
+
+### Acceptance criteria
+
+- `/ask` emits useful basic audit/decision logs
+- logging remains lightweight and reviewable
+
+## Task 73 — Enforce safe handling for suspicious and hidden-instruction requests
+
+Use the new classification layer to add minimal live-route safety behavior without overbuilding policy machinery.
+
+### Goal
+
+Prevent obvious prompt-override and hidden-instruction requests from being handled as normal grounded questions.
+
+### Modify
+
+- `app/api/routes.py`
+- classification/prompt helpers only if needed
+- `app/ai/prompts.py` only if required
+
+### Do not modify
+
+- CI workflows
+- project-state docs
+- unrelated architecture or cloud work
+
+### Requirements
+
+1. Ignore suspicious override instructions rather than honoring them.
+2. For hidden-instruction requests, enforce a deterministic safe handling path.
+3. Keep the behavior tied to the live grounded route rather than creating a speculative policy framework.
+4. Preserve the route's grounded-answer objective for legitimate business content where appropriate.
+
+### Acceptance criteria
+
+- suspicious and hidden-instruction requests no longer behave like normal grounded requests
+- the route applies deterministic safety behavior where required
+- changes remain scoped to the live route
+
+## Task 74 — Expand validation for classification-aware live behavior
+
+Bring tests and evaluation into line with the new classification and safety behavior on the live route.
+
+### Goal
+
+Keep verification aligned to the route's new safety handling without making CI environment-dependent.
+
+### Modify
+
+- `tests/`
+- `scripts/run_eval.py`
+- `data/evaluation/eval_questions.json` only if required
+
+### Do not modify
+
+- CI workflows
+- project-state docs
+- unrelated application behavior
+
+### Requirements
+
+1. Add deterministic tests for classification and policy handling.
+2. Keep evaluation/test logic aligned with the real route precedence and behavior.
+3. Preserve CI safety and low operational overhead.
+
+### Acceptance criteria
+
+- classification-aware route behavior has deterministic validation
+- evaluation/test logic reflects the actual live handling path
+- verification remains lightweight and CI-safe
+
+## Task 75 — Milestone 3 historian update
+
+Record the accepted Milestone 3 changes in project memory after merge.
+
+### Goal
+
+Advance the repository's recorded truth only after the governance/observability milestone is actually merged.
+
+### Modify
+
+- `docs/status.md`
+- `docs/roadmap.md`
+- `docs/manual_progress.md`
+- `docs/architecture-decisions.md` only if a real design decision changed
+
+### Do not modify
+
+- application code
+- tests
+- CI workflows
+- prompts
+
+### Requirements
+
+1. Record only the accepted and merged Milestone 3 work.
+2. Reflect the new live governance/observability baseline accurately.
+3. Do not overstate operational maturity beyond what was merged and verified.
+
+### Acceptance criteria
+
+- post-Milestone-3 state/history docs reflect the real merged baseline
+- no speculative future work is recorded as complete
+
+### Milestone 3 review gate
+
+Before authorizing a later milestone, Planner and Owner review:
+
+- whether the live route is now honest, grounded, and minimally governed
+- what the next most valuable milestone should be
+- whether the next stage should focus on ops maturity, retrieval quality, packaging, or cloud mapping

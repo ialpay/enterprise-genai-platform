@@ -2,6 +2,18 @@
 
 ## Task Types
 
+### 0. Planning / Milestone Task
+Purpose:
+- define or refine milestone sequencing
+- add or tighten future task definitions
+- prepare role-specific prompt packs
+
+Rules:
+- keep planning grounded in `docs/status.md` and the verified baseline
+- use milestones with meaningful achievements rather than unrelated task piles
+- do not mark future work as complete
+- trigger routine next-step workflow actions proactively rather than waiting for them to be requested again
+
 ### 1. Implementation Task
 Purpose:
 - make the scoped code or doc change required by a task
@@ -19,6 +31,14 @@ Rules:
 - update only the relevant state/history documents
 - do not introduce new implementation changes
 
+## Milestone Rule
+
+- forward work should be grouped into milestones
+- each milestone should produce one meaningful, reviewable achievement
+- each milestone should end with a completion/handover update after accepted merge
+- after a milestone closes, Planner and Owner hold a milestone review before the next milestone starts
+- accepted tasks must be finalized into clean merge-ready branch states before they are treated as ready for merge
+
 ## Branch Naming
 
 Use:
@@ -31,14 +51,18 @@ Examples:
 ## Standard Flow
 
 1. Confirm current phase and focus from `docs/status.md`
-2. Read the task in `docs/codex_tasks.md`
-3. Create a task branch
-4. Implement only scoped changes
-5. Run relevant validation
-6. Review the diff
-7. Accept or reject the task
-8. If accepted, run a completion/handover update
-9. Merge only after validation and review pass
+2. Read the milestone and task in `docs/codex_tasks.md`
+3. If needed, Planner refines the active milestone and prepares role-specific prompts
+4. If routine process correction is needed, such as branch-scope cleanup or handoff preparation, do it before advancing
+5. Create a task branch
+6. Implement only scoped changes
+7. Run relevant validation
+8. Review the diff
+9. Accept or reject the task
+10. If accepted, ensure the task branch is in a clean merge-ready state
+11. Merge only after validation, review pass, and branch finalization
+12. If accepted merged work requires state/history updates, run a separate completion/handover task
+13. If that completion/handover task closes a milestone, hold the Planner/Owner milestone review before starting the next milestone
 
 ## Required Task Summary
 
@@ -72,3 +96,10 @@ At minimum, separate:
 - builder
 - verifier
 - reviewer
+
+## Planner Handoff Rule
+
+- Builder, Reviewer, and Historian outputs should be concise and structured enough for Planner to turn them into the next prompt handoff
+- Planner should interpret role outputs together with repository state, not rely on chat memory alone
+- temporary handoff files may be stored under `.run/handoffs/` during an active milestone
+- handoff files should be retained until the milestone closes, then deleted as part of milestone cleanup
