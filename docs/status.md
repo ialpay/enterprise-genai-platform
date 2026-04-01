@@ -46,7 +46,7 @@ Advanced application modules for retrieval, ingestion, prompting, and vector int
 - Task 62: config/dependency baseline stabilized for tracked modules
 - Task 63: deterministic contract validation added for live and staged-module assumptions
 - Task 64: local developer run path documentation and scripts aligned
-- Task 65: repository memory docs updated to reflect the accepted Milestone 1 baseline
+- Task 65: repository memory docs updated to reflect the merged Milestone 1 baseline pending review-gate closure
 
 ## In Progress
 

@@ -153,13 +153,14 @@ Operating result:
 ## Step 12 — Milestone 1 Task 65: Historian Baseline Update
 Completed tasks:
 
-- Updated `docs/status.md` to reflect the accepted post-Milestone-1 live baseline conservatively
+- Updated `docs/status.md` to reflect the merged post-Milestone-1 live baseline conservatively, pending review-gate closure
 - Updated `docs/roadmap.md` to align current phase, now/next sequencing, and live-vs-staged claims
 - Updated `docs/manual_progress.md` to record Milestone 1 implementation history and review-gate entry
+- Checked state-doc claims against the merged code/tests baseline and the Milestone 1 review-gate status
 
 Operating result:
 
-- Repository memory now reflects the accepted Milestone 1 baseline without marking staged retrieval modules as live
+- Repository memory now reflects the merged Milestone 1 baseline without marking staged retrieval modules as live or treating the milestone as closed before the review gate
 
 ## Current Status
 Post-Milestone-1 baseline now includes:
