@@ -104,3 +104,61 @@ Working project baseline now includes:
 
 ## Next Step
 Add next task definitions, create the prompt library, and begin using the protected workflow for all future task implementation.
+
+## Step 8 — Milestone 1 Task 61: Descriptive Baseline Reconciliation
+Completed tasks:
+
+- Updated `docs/project-walkthrough.md` to describe the live Ollama-backed `/ask` baseline accurately
+- Updated `docs/architecture-packaging.md` to distinguish staged modules from integrated live behavior
+- Removed over-claims about live grounded RAG/governance behavior not present in the active route path
+
+Operating result:
+
+- Descriptive architecture docs are aligned to verified route behavior
+- Portfolio/architecture narrative remains useful without overstating runtime capabilities
+
+## Step 9 — Milestone 1 Task 62: Config and Dependency Baseline Stabilization
+Completed tasks:
+
+- Expanded tracked settings coverage in `app/core/config.py` for app, Ollama, embedding, and Qdrant baseline fields
+- Updated `requirements.txt` so tracked module imports match declared dependencies
+- Kept live `/ask` route behavior unchanged while stabilizing baseline configuration/dependency contracts
+
+Operating result:
+
+- Tracked modules no longer depend on obviously missing config/dependency baseline elements
+
+## Step 10 — Milestone 1 Task 63: Deterministic Validation Contracts
+Completed tasks:
+
+- Added direct route tests for live `/ask` success and Ollama-unavailable error paths with mocking
+- Added lightweight contract tests for config expectations, prompt construction, and retrieval helper behavior
+- Kept tests CI-safe by avoiding live Ollama/Qdrant runtime dependencies
+
+Operating result:
+
+- Baseline confidence improved with deterministic local/CI validation of key live and staged-module assumptions
+
+## Step 11 — Milestone 1 Task 64: Local Run Path Coherence
+Completed tasks:
+
+- Added a clear local quickstart in `README.md`
+- Added explicit local runtime/setup guidance in `docs/local-setup.md`
+- Aligned `scripts/start_platform.sh` and `scripts/stop_platform.sh` with documented local assumptions
+
+Operating result:
+
+- Local dependency install/start/stop flow is explicit and coherent for developers/operators
+
+## Current Status
+Post-Milestone-1 baseline now includes:
+
+- FastAPI with verified `GET /health`
+- Ollama-backed `POST /ask` with stable error handling
+- Stabilized config/dependency baseline for tracked modules
+- Deterministic contract tests for API/config/prompt/retrieval helpers
+- Coherent local run documentation and startup/shutdown scripts
+- Governance and protected-PR workflow baseline
+
+## Next Step
+Run the Milestone 1 review gate, then start Milestone 2 Task 66 (local ingestion run coherence) without treating staged retrieval modules as live baseline until integrated and verified.

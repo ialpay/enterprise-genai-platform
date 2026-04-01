@@ -2,24 +2,26 @@
 
 ## Date
 
-2026-03-30
+2026-04-01
 
 ## Current Phase
 
-Repository baseline reconciliation and operating-model hardening.
+Milestone 1 closeout: baseline truth and run coherence.
 
 ## Current Focus
 
-- Align repository docs to the actual verified application baseline
-- Preserve governance, workflow, and process maturity already established in the repo
-- Define the next real engineering step from the current placeholder API baseline
+- Record accepted Milestone 1 baseline updates in project memory docs
+- Keep live baseline claims aligned to integrated and verified behavior
+- Prepare Milestone 2 entry from the current Ollama-backed `/ask` baseline
 
 ## Verified Application Baseline
 
 - FastAPI application shell is present
 - `GET /health` is implemented and verified
-- `POST /ask` still returns a placeholder response
-- Tests and current evaluation behavior align with the placeholder `/ask` baseline
+- `POST /ask` is Ollama-backed and returns `source: "ollama"`
+- Ollama failure on `/ask` returns HTTP 502 with stable error detail
+- Config contract baseline covers app, Ollama, embedding, and Qdrant fields
+- Lightweight contract tests cover API, config, prompt construction, and retrieval helpers without requiring live Ollama or Qdrant
 
 ## Repository / Process Baseline
 
@@ -29,6 +31,7 @@ Repository baseline reconciliation and operating-model hardening.
 - GitHub workflows are present for verification and secret scanning
 - PR-based, repo-driven workflow is established
 - Protected PR workflow on `main`
+- Local run path docs/scripts are coherent for `.venv`, local Ollama, Docker Qdrant, and Uvicorn startup
 - Required checks:
   - `verify`
   - `secret-scan`
@@ -39,29 +42,27 @@ Advanced application modules for retrieval, ingestion, prompting, and vector int
 
 ## Completed Recently
 
-- Repository governance baseline established
-- Task workflow baseline established
-- Operating-model baseline established
-- Prompt-role baseline established
-- CI/workflow baseline established
+- Task 61: descriptive architecture docs reconciled to the live route baseline
+- Task 62: config/dependency baseline stabilized for tracked modules
+- Task 63: deterministic contract validation added for live and staged-module assumptions
+- Task 64: local developer run path documentation and scripts aligned
 
 ## In Progress
 
-- Reconcile strategy and status docs to the actual verified application baseline
-- Record missing architecture and operating-model decisions where needed
-- Re-sequence next tasks from the real current API maturity
+- Task 65 historian update for Milestone 1 repository memory
+- Milestone 1 review-gate preparation (Planner + Owner)
 
 ## Next Recommended Work
 
-1. Record missing architecture and operating-model decisions
-2. Update task sequencing to reflect the real current baseline
-3. Define the next real engineering task from the placeholder `/ask` baseline
+1. Hold the Milestone 1 review gate and confirm completion status
+2. Begin Milestone 2 Task 66 to make ingestion locally runnable from tracked sources
+3. Continue enforcing baseline truth: staged retrieval/prompt modules are not live until integrated and verified
 
 ## Risks / Blockers
 
-- Strategy and status docs can overstate application maturity if not reconciled to the verified code baseline
+- Milestone 1 should not be treated as complete until review-gate confirmation is recorded
 - Advanced modules in the tree may be mistaken for completed live functionality
-- Future task planning can drift if sequencing is not reset from the actual baseline
+- Milestone 2 sequencing can drift if staged code is treated as live before route integration and verification
 
 ## Notes
 
