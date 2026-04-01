@@ -10,7 +10,11 @@ Build a disciplined enterprise-style GenAI repository that evolves from a verifi
 
 - FastAPI application shell
 - Health endpoint
-- Placeholder `/ask` endpoint
+- Ollama-backed `/ask` endpoint
+- Stable `/ask` error path for Ollama unavailability (HTTP 502)
+- Config/dependency baseline aligned for tracked modules
+- Deterministic contract tests for API/config/prompt/retrieval helper assumptions
+- Coherent local run path docs/scripts for `.venv`, local Ollama, Docker Qdrant, and Uvicorn
 - Repository governance documents
 - Operating-model documents
 - Task workflow documents
@@ -29,20 +33,19 @@ Build a disciplined enterprise-style GenAI repository that evolves from a verifi
 
 ## Current Phase
 
-Repository baseline reconciliation and operating-model hardening.
+Milestone 1 review gate and Milestone 2 entry planning.
 
 ## Now
 
-- Reconcile roadmap and status to the actual verified application baseline
-- Preserve and clarify repository governance / workflow achievements
-- Record missing operating-model and architecture decisions
-- Reset task sequencing from the real current API maturity
+- Hold the Milestone 1 review gate
+- Prepare Milestone 2 Task 66 from the current verified baseline
+- Keep baseline claims conservative: staged modules remain non-live until integrated and verified
 
 ## Next
 
-- Define the next real application baseline beyond placeholder `/ask`
-- Integrate and verify application behavior step by step
-- Expand application capability only when the live route and tests support it
+- Start Milestone 2 with ingestion-run coherence (Task 66) after the Milestone 1 review gate
+- Integrate retrieval/prompt/vector path into the live route incrementally
+- Expand capability only when route behavior and tests confirm integration
 
 ## Later
 
