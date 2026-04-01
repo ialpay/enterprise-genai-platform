@@ -150,6 +150,17 @@ Operating result:
 
 - Local dependency install/start/stop flow is explicit and coherent for developers/operators
 
+## Step 12 — Milestone 1 Task 65: Historian Baseline Update
+Completed tasks:
+
+- Updated `docs/status.md` to reflect the accepted post-Milestone-1 live baseline conservatively
+- Updated `docs/roadmap.md` to align current phase, now/next sequencing, and live-vs-staged claims
+- Updated `docs/manual_progress.md` to record Milestone 1 implementation history and review-gate entry
+
+Operating result:
+
+- Repository memory now reflects the accepted Milestone 1 baseline without marking staged retrieval modules as live
+
 ## Current Status
 Post-Milestone-1 baseline now includes:
 

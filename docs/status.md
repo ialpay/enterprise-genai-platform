@@ -6,11 +6,11 @@
 
 ## Current Phase
 
-Milestone 1 closeout: baseline truth and run coherence.
+Milestone 1 review gate and Milestone 2 entry planning.
 
 ## Current Focus
 
-- Record accepted Milestone 1 baseline updates in project memory docs
+- Hold the Milestone 1 review gate
 - Keep live baseline claims aligned to integrated and verified behavior
 - Prepare Milestone 2 entry from the current Ollama-backed `/ask` baseline
 
@@ -46,21 +46,21 @@ Advanced application modules for retrieval, ingestion, prompting, and vector int
 - Task 62: config/dependency baseline stabilized for tracked modules
 - Task 63: deterministic contract validation added for live and staged-module assumptions
 - Task 64: local developer run path documentation and scripts aligned
+- Task 65: repository memory docs updated to reflect the accepted Milestone 1 baseline
 
 ## In Progress
 
-- Task 65 historian update for Milestone 1 repository memory
-- Milestone 1 review-gate preparation (Planner + Owner)
+- Milestone 1 review gate (Planner + Owner)
 
 ## Next Recommended Work
 
-1. Hold the Milestone 1 review gate and confirm completion status
-2. Begin Milestone 2 Task 66 to make ingestion locally runnable from tracked sources
+1. Complete the Milestone 1 review gate and confirm completion status
+2. If the review gate passes, begin Milestone 2 Task 66 to make ingestion locally runnable from tracked sources
 3. Continue enforcing baseline truth: staged retrieval/prompt modules are not live until integrated and verified
 
 ## Risks / Blockers
 
-- Milestone 1 should not be treated as complete until review-gate confirmation is recorded
+- Milestone 1 should not be treated as closed until review-gate confirmation is recorded
 - Advanced modules in the tree may be mistaken for completed live functionality
 - Milestone 2 sequencing can drift if staged code is treated as live before route integration and verification
 

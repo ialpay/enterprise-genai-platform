@@ -33,17 +33,17 @@ Build a disciplined enterprise-style GenAI repository that evolves from a verifi
 
 ## Current Phase
 
-Milestone 1 closeout and Milestone 2 entry planning.
+Milestone 1 review gate and Milestone 2 entry planning.
 
 ## Now
 
-- Record accepted Milestone 1 work in repository memory documents
-- Confirm Milestone 1 review-gate outcome
+- Hold the Milestone 1 review gate
+- Prepare Milestone 2 Task 66 from the current verified baseline
 - Keep baseline claims conservative: staged modules remain non-live until integrated and verified
 
 ## Next
 
-- Start Milestone 2 with ingestion-run coherence (Task 66)
+- Start Milestone 2 with ingestion-run coherence (Task 66) after the Milestone 1 review gate
 - Integrate retrieval/prompt/vector path into the live route incrementally
 - Expand capability only when route behavior and tests confirm integration
 
