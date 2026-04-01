@@ -1,7 +1,11 @@
 """Basic API tests for the FastAPI routes."""
 
+import pytest
+from fastapi import HTTPException
+
 from app.api import routes
 from app.api.schemas import AskRequest
+from app.ai.llm_client import OllamaClientError
 
 
 def test_health_returns_ok() -> None:
@@ -14,10 +18,6 @@ def test_ask_returns_ollama_response(monkeypatch) -> None:
     assert response.question == "hello"
     assert response.answer == "mock answer"
     assert response.source == "ollama"
-
-import pytest
-from fastapi import HTTPException
-from app.ai.llm_client import OllamaClientError
 
 def test_ask_returns_502_when_ollama_unavailable(monkeypatch) -> None:
     def fail(prompt: str) -> str:
