@@ -12,7 +12,21 @@ def _clear_settings_cache() -> None:
     config.get_settings.cache_clear()
 
 
-def test_get_settings_defaults_match_baseline() -> None:
+def test_get_settings_defaults_match_baseline(monkeypatch) -> None:
+    for key in (
+        "APP_NAME",
+        "APP_ENV",
+        "APP_HOST",
+        "APP_PORT",
+        "OLLAMA_BASE_URL",
+        "OLLAMA_MODEL",
+        "EMBEDDING_MODEL",
+        "QDRANT_HOST",
+        "QDRANT_PORT",
+        "QDRANT_COLLECTION",
+    ):
+        monkeypatch.delenv(key, raising=False)
+
     settings = config.get_settings()
 
     assert settings.app_name == "enterprise-genai-platform"
