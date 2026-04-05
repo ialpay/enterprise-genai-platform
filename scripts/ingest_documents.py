@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import argparse
+from collections import Counter
 from dataclasses import replace
 from pathlib import Path
 import sys
@@ -13,7 +15,11 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from app.ingestion.chunking import TextChunk, chunk_documents
-from app.ingestion.loaders import load_markdown_documents, load_pdf_documents
+from app.ingestion.loaders import (
+    SourceDocument,
+    load_markdown_documents,
+    load_pdf_documents,
+)
 from app.retrieval.embeddings import EmbeddingError, OllamaEmbeddingGenerator
 from app.retrieval.vector_store import QdrantVectorStore
 
@@ -22,6 +28,57 @@ UPSERT_BATCH_SIZE = 50
 RETRY_DELAY_SECONDS = 2
 MIN_SPLIT_CHUNK_LENGTH = 120
 CONTEXT_LENGTH_ERROR_TEXT = "input length exceeds the context length"
+VECTOR_SIZE_PREFLIGHT_PROBE_TEXT = "qdrant vector size preflight probe"
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Ingest tracked source documents into Qdrant."
+    )
+    parser.add_argument(
+        "--chunk-size",
+        type=int,
+        default=500,
+        help="Chunk size for document splitting (default: 500).",
+    )
+    parser.add_argument(
+        "--chunk-overlap",
+        type=int,
+        default=50,
+        help="Chunk overlap for document splitting (default: 50).",
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Load and chunk tracked sources without embedding or Qdrant upsert.",
+    )
+    parser.add_argument(
+        "--recreate-collection",
+        action="store_true",
+        help=(
+            "Explicitly recreate the configured Qdrant collection when an existing "
+            "collection vector size does not match the current embedding vector size."
+        ),
+    )
+    return parser.parse_args()
+
+
+def load_tracked_documents(raw_dir: Path) -> list[SourceDocument]:
+    tracked_sources = (
+        ("aws_docs", raw_dir / "aws_docs", load_markdown_documents),
+        ("internal_docs", raw_dir / "internal_docs", load_markdown_documents),
+        ("nist_docs", raw_dir / "nist_docs", load_pdf_documents),
+    )
+
+    documents = []
+    for source_type, source_dir, loader in tracked_sources:
+        loaded = loader(source_dir, source_type=source_type)
+        print(
+            f"Loaded {len(loaded)} documents from {source_type} "
+            f"({source_dir.as_posix()})"
+        )
+        documents.extend(loaded)
+    return documents
 
 
 def chunk_label(chunk: TextChunk) -> str:
@@ -156,58 +213,117 @@ def split_and_embed_chunk(
 
 
 def main() -> None:
+    args = parse_args()
     raw_dir = PROJECT_ROOT / "data" / "raw"
-    aws_docs_dir = raw_dir / "aws_docs"
-    internal_docs_dir = raw_dir / "internal_docs"
-    nist_docs_dir = raw_dir / "nist_docs"
-
-    documents = []
-    documents.extend(load_markdown_documents(aws_docs_dir, source_type="aws_docs"))
-    documents.extend(
-        load_markdown_documents(internal_docs_dir, source_type="internal_docs")
-    )
-    documents.extend(load_pdf_documents(nist_docs_dir, source_type="nist_docs"))
+    try:
+        documents = load_tracked_documents(raw_dir)
+    except (FileNotFoundError, NotADirectoryError, RuntimeError) as exc:
+        print(f"Ingestion source loading failed: {exc}")
+        raise SystemExit(1) from exc
 
     print(f"Loaded documents: {len(documents)}")
     if not documents:
-        print("No documents found to ingest.")
-        return
+        print("No documents found to ingest from tracked sources.")
+        raise SystemExit(1)
 
-    chunks = chunk_documents(documents)
+    chunks = chunk_documents(
+        documents,
+        chunk_size=args.chunk_size,
+        chunk_overlap=args.chunk_overlap,
+    )
     print(f"Created chunks: {len(chunks)}")
     if not chunks:
         print("Documents loaded but no chunks were created.")
+        raise SystemExit(1)
+
+    source_counts = Counter(document.source_type for document in documents)
+    chunk_counts = Counter(chunk.source_type for chunk in chunks)
+    print(f"Document counts by source: {dict(source_counts)}")
+    print(f"Chunk counts by source: {dict(chunk_counts)}")
+
+    if args.dry_run:
+        print("Dry run complete. Skipping embedding generation and Qdrant upsert.")
         return
 
-    embedding_generator = OllamaEmbeddingGenerator()
-    embedded_chunks: list[TextChunk] = []
-    vectors: list[list[float]] = []
-    total_chunks = len(chunks)
-    for index, chunk in enumerate(chunks, start=1):
-        embedded_results = embed_chunk_with_retry(
-            embedding_generator=embedding_generator,
-            index=index,
-            total_chunks=total_chunks,
-            chunk=chunk,
+    try:
+        embedding_generator = OllamaEmbeddingGenerator()
+        embedding_generator.ensure_model_available()
+        print(
+            f"Embedding model preflight passed for configured model: "
+            f"{embedding_generator.model_name}"
         )
-        for embedded_chunk, vector in embedded_results:
-            embedded_chunks.append(embedded_chunk)
-            vectors.append(vector)
-        if index % EMBEDDING_PROGRESS_EVERY == 0 or index == total_chunks:
-            print(f"Embedding progress: {index}/{total_chunks}")
+        embedding_vector_size = len(
+            embedding_generator.embed_text(VECTOR_SIZE_PREFLIGHT_PROBE_TEXT)
+        )
+        if embedding_vector_size <= 0:
+            raise EmbeddingError(
+                "Embedding preflight returned an empty vector while checking Qdrant "
+                "collection compatibility."
+            )
+        print(f"Embedding vector size preflight: {embedding_vector_size}")
 
-    vector_size = len(vectors[0])
+        store = QdrantVectorStore()
+        collection_vector_size = store.get_collection_vector_size()
+        if collection_vector_size is None:
+            print(
+                f"Qdrant collection '{store.collection_name}' not found. "
+                f"Creating it with vector size {embedding_vector_size}."
+            )
+            store.ensure_collection(vector_size=embedding_vector_size)
+        elif collection_vector_size != embedding_vector_size:
+            if args.recreate_collection:
+                print(
+                    f"Qdrant collection '{store.collection_name}' vector size "
+                    f"mismatch detected (existing={collection_vector_size}, "
+                    f"embedding={embedding_vector_size}). Recreating collection "
+                    f"because --recreate-collection was provided."
+                )
+                store.recreate_collection(vector_size=embedding_vector_size)
+            else:
+                raise RuntimeError(
+                    f"Configured Qdrant collection '{store.collection_name}' vector "
+                    f"size mismatch: existing collection size is "
+                    f"{collection_vector_size}, current embedding vector size is "
+                    f"{embedding_vector_size}. Re-run with --recreate-collection "
+                    f"to recreate the local collection, or set QDRANT_COLLECTION "
+                    f"to a collection that matches the embedding vector size."
+                )
+        else:
+            print(
+                f"Qdrant collection preflight passed for '{store.collection_name}' "
+                f"(vector size {collection_vector_size})."
+            )
 
-    store = QdrantVectorStore()
-    store.ensure_collection(vector_size=vector_size)
-    store.upsert_chunks(
-        chunks=embedded_chunks,
-        vectors=vectors,
-        batch_size=UPSERT_BATCH_SIZE,
-        progress_callback=lambda batch, total, size: print(
-            f"Upsert batch: {batch}/{total} ({size} points)"
-        ),
-    )
+        embedded_chunks: list[TextChunk] = []
+        vectors: list[list[float]] = []
+        total_chunks = len(chunks)
+        for index, chunk in enumerate(chunks, start=1):
+            embedded_results = embed_chunk_with_retry(
+                embedding_generator=embedding_generator,
+                index=index,
+                total_chunks=total_chunks,
+                chunk=chunk,
+            )
+            for embedded_chunk, vector in embedded_results:
+                embedded_chunks.append(embedded_chunk)
+                vectors.append(vector)
+            if index % EMBEDDING_PROGRESS_EVERY == 0 or index == total_chunks:
+                print(f"Embedding progress: {index}/{total_chunks}")
+
+        store.upsert_chunks(
+            chunks=embedded_chunks,
+            vectors=vectors,
+            batch_size=UPSERT_BATCH_SIZE,
+            progress_callback=lambda batch, total, size: print(
+                f"Upsert batch: {batch}/{total} ({size} points)"
+            ),
+        )
+    except EmbeddingError as exc:
+        print(f"Embedding pipeline failed: {exc}")
+        raise SystemExit(1) from exc
+    except Exception as exc:
+        print(f"Ingestion pipeline failed during vector storage: {exc}")
+        raise SystemExit(1) from exc
 
     print("Ingestion complete.")
 

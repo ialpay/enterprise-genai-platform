@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from uuid import uuid4
 
 from qdrant_client import QdrantClient
+from qdrant_client.http.exceptions import UnexpectedResponse
 from qdrant_client.http.models import Distance, PointStruct, QueryResponse, VectorParams
 
 from app.core.config import get_settings
@@ -28,6 +29,39 @@ class QdrantVectorStore:
         self._collection_name = settings.qdrant_collection
         self._client = QdrantClient(host=settings.qdrant_host, port=settings.qdrant_port)
 
+    @property
+    def collection_name(self) -> str:
+        return self._collection_name
+
+    def get_collection_vector_size(self) -> int | None:
+        try:
+            collection = self._client.get_collection(self._collection_name)
+        except UnexpectedResponse as exc:
+            if exc.status_code == 404:
+                return None
+            raise RuntimeError(
+                f"Failed to query Qdrant collection '{self._collection_name}': {exc}"
+            ) from exc
+        except Exception as exc:
+            raise RuntimeError(
+                f"Failed to query Qdrant collection '{self._collection_name}': {exc}"
+            ) from exc
+
+        vector_size = self._extract_vector_size(collection)
+        if vector_size is None:
+            raise RuntimeError(
+                f"Unable to determine vector size for Qdrant collection "
+                f"'{self._collection_name}'."
+            )
+        return vector_size
+
+    def recreate_collection(self, vector_size: int) -> None:
+        self._client.delete_collection(collection_name=self._collection_name)
+        self._client.create_collection(
+            collection_name=self._collection_name,
+            vectors_config=VectorParams(size=vector_size, distance=Distance.COSINE),
+        )
+
     def ensure_collection(self, vector_size: int) -> None:
         try:
             self._client.get_collection(self._collection_name)
@@ -39,6 +73,25 @@ class QdrantVectorStore:
             collection_name=self._collection_name,
             vectors_config=VectorParams(size=vector_size, distance=Distance.COSINE),
         )
+
+    @staticmethod
+    def _extract_vector_size(collection: object) -> int | None:
+        vectors = getattr(
+            getattr(getattr(collection, "config", None), "params", None),
+            "vectors",
+            None,
+        )
+        if isinstance(vectors, VectorParams):
+            return int(vectors.size)
+        if isinstance(vectors, dict):
+            for params in vectors.values():
+                size = getattr(params, "size", None)
+                if isinstance(size, int):
+                    return size
+        size = getattr(vectors, "size", None)
+        if isinstance(size, int):
+            return size
+        return None
 
     def upsert_chunks(
         self,
