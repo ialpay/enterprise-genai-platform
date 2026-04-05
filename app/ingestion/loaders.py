@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Iterable
 
 from pypdf import PdfReader
 
@@ -15,16 +16,28 @@ class SourceDocument:
     source_type: str
 
 
+def _require_directory(directory: Path) -> Path:
+    if not directory.exists():
+        raise FileNotFoundError(f"Source directory not found: {directory}")
+    if not directory.is_dir():
+        raise NotADirectoryError(f"Source path is not a directory: {directory}")
+    return directory
+
+
+def _iter_files(directory: Path, pattern: str) -> Iterable[Path]:
+    return sorted(_require_directory(directory).rglob(pattern))
+
+
 def load_markdown_documents(directory: Path, source_type: str) -> list[SourceDocument]:
     documents: list[SourceDocument] = []
-    for path in sorted(directory.glob("*.md")):
+    for path in _iter_files(directory, "*.md"):
         text = path.read_text(encoding="utf-8").strip()
         if not text:
             continue
         documents.append(
             SourceDocument(
                 text=text,
-                source_file=path.name,
+                source_file=path.relative_to(directory).as_posix(),
                 source_type=source_type,
             )
         )
@@ -33,8 +46,11 @@ def load_markdown_documents(directory: Path, source_type: str) -> list[SourceDoc
 
 def load_pdf_documents(directory: Path, source_type: str) -> list[SourceDocument]:
     documents: list[SourceDocument] = []
-    for path in sorted(directory.glob("*.pdf")):
-        reader = PdfReader(str(path))
+    for path in _iter_files(directory, "*.pdf"):
+        try:
+            reader = PdfReader(str(path))
+        except Exception as exc:
+            raise RuntimeError(f"Failed to read PDF file: {path}") from exc
         pages = []
         for page in reader.pages:
             page_text = page.extract_text() or ""
@@ -45,7 +61,7 @@ def load_pdf_documents(directory: Path, source_type: str) -> list[SourceDocument
         documents.append(
             SourceDocument(
                 text=text,
-                source_file=path.name,
+                source_file=path.relative_to(directory).as_posix(),
                 source_type=source_type,
             )
         )
