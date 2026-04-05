@@ -1,5 +1,7 @@
 """Deterministic retrieval helper contract checks with local doubles."""
 
+from collections import Counter
+
 from app.retrieval.retriever import (
     TOP_K_SEARCH,
     Retriever,
@@ -79,3 +81,138 @@ def test_filename_keyword_detection_and_query_expansion() -> None:
     plain_query = "No keyword here"
     assert detect_filename_keyword(plain_query) is None
     assert expand_query(plain_query) == plain_query
+
+
+def test_retriever_prefers_policy_source_and_suppresses_non_preferred() -> None:
+    embedding_double = _EmbeddingDouble()
+    vector_store_double = _VectorStoreDouble(
+        matches=[
+            QdrantSearchResult(
+                text="AWS security guidance text.",
+                source_file="aws_security.md",
+                source_type="aws_docs",
+                chunk_index=0,
+                score=0.90,
+            ),
+            QdrantSearchResult(
+                text="Higher-scoring non-AWS text.",
+                source_file="internal_runbook.md",
+                source_type="internal_docs",
+                chunk_index=0,
+                score=0.96,
+            ),
+            QdrantSearchResult(
+                text="NIST companion text.",
+                source_file="nist_profile.pdf",
+                source_type="nist_docs",
+                chunk_index=0,
+                score=0.87,
+            ),
+        ]
+    )
+    retriever = Retriever(
+        embedding_generator=embedding_double, vector_store=vector_store_double
+    )
+
+    results = retriever.retrieve("Need AWS security pillar guidance", limit=5)
+
+    assert [result.source_type for result in results] == ["aws_docs"]
+    assert results[0].source_file == "aws_security.md"
+
+
+def test_retriever_reranks_by_query_token_overlap() -> None:
+    embedding_double = _EmbeddingDouble()
+    vector_store_double = _VectorStoreDouble(
+        matches=[
+            QdrantSearchResult(
+                text="General advisory content without matching tokens.",
+                source_file="advisory.md",
+                source_type="internal_docs",
+                chunk_index=0,
+                score=0.90,
+            ),
+            QdrantSearchResult(
+                text="Incident response runbook procedures for severe incidents.",
+                source_file="runbook.md",
+                source_type="internal_docs",
+                chunk_index=1,
+                score=0.80,
+            ),
+        ]
+    )
+    retriever = Retriever(
+        embedding_generator=embedding_double, vector_store=vector_store_double
+    )
+
+    results = retriever.retrieve("incident response runbook", limit=5)
+
+    assert [result.source_file for result in results] == [
+        "runbook.md",
+        "advisory.md",
+    ]
+    assert results[0].score == 0.80
+    assert results[1].score == 0.90
+
+
+def test_retriever_applies_best_document_bias_and_per_document_caps() -> None:
+    embedding_double = _EmbeddingDouble()
+    vector_store_double = _VectorStoreDouble(
+        matches=[
+            QdrantSearchResult(
+                text="deterministic retrieval coverage text",
+                source_file="best_doc.md",
+                source_type="internal_docs",
+                chunk_index=0,
+                score=0.95,
+            ),
+            QdrantSearchResult(
+                text="deterministic retrieval coverage text",
+                source_file="best_doc.md",
+                source_type="internal_docs",
+                chunk_index=1,
+                score=0.94,
+            ),
+            QdrantSearchResult(
+                text="deterministic retrieval coverage text",
+                source_file="best_doc.md",
+                source_type="internal_docs",
+                chunk_index=2,
+                score=0.93,
+            ),
+            QdrantSearchResult(
+                text="deterministic retrieval coverage text",
+                source_file="best_doc.md",
+                source_type="internal_docs",
+                chunk_index=3,
+                score=0.92,
+            ),
+            QdrantSearchResult(
+                text="deterministic retrieval coverage text",
+                source_file="other_doc_a.md",
+                source_type="internal_docs",
+                chunk_index=0,
+                score=0.91,
+            ),
+            QdrantSearchResult(
+                text="deterministic retrieval coverage text",
+                source_file="other_doc_b.md",
+                source_type="internal_docs",
+                chunk_index=0,
+                score=0.90,
+            ),
+        ]
+    )
+    retriever = Retriever(
+        embedding_generator=embedding_double, vector_store=vector_store_double
+    )
+
+    results = retriever.retrieve("deterministic retrieval coverage", limit=5)
+    counts = Counter(result.source_file for result in results)
+
+    assert len(results) == 5
+    assert counts["best_doc.md"] == 3
+    assert counts["other_doc_a.md"] == 1
+    assert counts["other_doc_b.md"] == 1
+    assert (("best_doc.md", 3)) not in {
+        (result.source_file, result.chunk_index) for result in results
+    }
