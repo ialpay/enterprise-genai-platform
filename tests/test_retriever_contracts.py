@@ -3,6 +3,7 @@
 from collections import Counter
 
 from app.retrieval.retriever import (
+    MAX_RETURNED_CHUNKS,
     TOP_K_SEARCH,
     Retriever,
     detect_filename_keyword,
@@ -216,3 +217,116 @@ def test_retriever_applies_best_document_bias_and_per_document_caps() -> None:
     assert (("best_doc.md", 3)) not in {
         (result.source_file, result.chunk_index) for result in results
     }
+
+
+def test_retriever_returns_empty_when_all_matches_are_below_threshold_or_none() -> None:
+    embedding_double = _EmbeddingDouble()
+    vector_store_double = _VectorStoreDouble(
+        matches=[
+            QdrantSearchResult(
+                text="No score match",
+                source_file="none_score.md",
+                source_type="internal_docs",
+                chunk_index=0,
+                score=None,
+            ),
+            QdrantSearchResult(
+                text="Below threshold match",
+                source_file="low_score.md",
+                source_type="aws_docs",
+                chunk_index=0,
+                score=0.54,
+            ),
+        ]
+    )
+    retriever = Retriever(
+        embedding_generator=embedding_double, vector_store=vector_store_double
+    )
+
+    results = retriever.retrieve("general capability question", limit=5)
+
+    assert results == []
+
+
+def test_compare_matches_prefers_filename_keyword_when_scores_are_close() -> None:
+    source_priority = {"internal_docs": 3}
+    left = QdrantSearchResult(
+        text="left",
+        source_file="team_playbook.md",
+        source_type="internal_docs",
+        chunk_index=0,
+        score=0.80,
+    )
+    right = QdrantSearchResult(
+        text="right",
+        source_file="general_notes.md",
+        source_type="internal_docs",
+        chunk_index=0,
+        score=0.81,
+    )
+
+    assert (
+        Retriever._compare_matches(
+            left,
+            right,
+            source_priority=source_priority,
+            filename_keyword="playbook",
+        )
+        == -1
+    )
+    assert (
+        Retriever._compare_matches(
+            right,
+            left,
+            source_priority=source_priority,
+            filename_keyword="playbook",
+        )
+        == 1
+    )
+
+
+def test_retriever_respects_caller_limit_below_max_returned_chunks() -> None:
+    embedding_double = _EmbeddingDouble()
+    vector_store_double = _VectorStoreDouble(
+        matches=[
+            QdrantSearchResult(
+                text="general retrieval guidance",
+                source_file=f"doc_{index}.md",
+                source_type="internal_docs",
+                chunk_index=0,
+                score=0.95 - (index * 0.01),
+            )
+            for index in range(6)
+        ]
+    )
+    retriever = Retriever(
+        embedding_generator=embedding_double, vector_store=vector_store_double
+    )
+
+    results = retriever.retrieve("general guidance", limit=2)
+
+    assert len(results) == 2
+    assert [result.source_file for result in results] == ["doc_0.md", "doc_1.md"]
+
+
+def test_retriever_caps_results_at_max_returned_chunks_when_limit_is_higher() -> None:
+    embedding_double = _EmbeddingDouble()
+    vector_store_double = _VectorStoreDouble(
+        matches=[
+            QdrantSearchResult(
+                text="general retrieval guidance",
+                source_file=f"doc_{index}.md",
+                source_type="internal_docs",
+                chunk_index=0,
+                score=0.95 - (index * 0.01),
+            )
+            for index in range(8)
+        ]
+    )
+    retriever = Retriever(
+        embedding_generator=embedding_double, vector_store=vector_store_double
+    )
+
+    results = retriever.retrieve("general guidance", limit=MAX_RETURNED_CHUNKS + 3)
+
+    assert len(results) == MAX_RETURNED_CHUNKS
