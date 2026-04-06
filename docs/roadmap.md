@@ -10,8 +10,12 @@ Build a disciplined enterprise-style GenAI repository that evolves from a verifi
 
 - FastAPI application shell
 - Health endpoint
-- Ollama-backed `/ask` endpoint
+- Retrieval-grounded `/ask` endpoint that uses retrieved context plus grounded prompting
+- Explicit insufficient-context handling in `/ask`
 - Stable `/ask` error path for Ollama unavailability (HTTP 502)
+- Local ingestion pipeline for tracked source folders into Qdrant
+- Deterministic retrieval-layer validation with doubles/fakes
+- Evaluation runner and question set aligned to grounded `/ask` behavior
 - Config/dependency baseline aligned for tracked modules
 - Deterministic contract tests for API/config/prompt/retrieval helper assumptions
 - Coherent local run path docs/scripts for `.venv`, local Ollama, Docker Qdrant, and Uvicorn
@@ -25,31 +29,29 @@ Build a disciplined enterprise-style GenAI repository that evolves from a verifi
 
 ### Present In Repository But Not Yet Counted As Completed Live Baseline
 
-- Retrieval modules
-- Ingestion modules
-- Prompt-building modules
-- Vector-store integration modules
-- Additional AI utility code that is not yet integrated and verified through the current live application path
+- Future governance and observability work
+- Additional packaging and operational hardening
+- Any future AI utility code that is not yet integrated and verified through the current live application path
 
 ## Current Phase
 
-Milestone 1 review gate and Milestone 2 entry planning.
+Milestone 2 review gate and Milestone 3 entry planning.
 
 ## Now
 
-- Hold the Milestone 1 review gate
-- Prepare Milestone 2 Task 66 from the current verified baseline
-- Keep baseline claims conservative: staged modules remain non-live until integrated and verified
+- Hold the Milestone 2 review gate
+- Prepare the next milestone from the grounded retrieval baseline
+- Keep baseline claims conservative: future modules remain non-live until integrated and verified
 
 ## Next
 
-- Start Milestone 2 with ingestion-run coherence (Task 66) after the Milestone 1 review gate
-- Integrate retrieval/prompt/vector path into the live route incrementally
+- Start the next milestone only after the Milestone 2 review gate closes
 - Expand capability only when route behavior and tests confirm integration
+- Keep governance and observability sequencing tied to verified live behavior
 
 ## Later
 
-- Retrieval integration and grounded answer flow
+- Further retrieval refinement and answer-quality tuning
 - Governance expansion tied to live application behavior
 - Evaluation maturity tied to integrated functionality
 - Operational maturity for the real application path
