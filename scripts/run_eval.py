@@ -17,7 +17,7 @@ from app.retrieval.retriever import RetrievalResult
 EVAL_PATH = PROJECT_ROOT / "data" / "evaluation" / "eval_questions.json"
 
 
-def load_questions() -> list[dict[str, str]]:
+def load_questions() -> list[dict[str, object]]:
     with EVAL_PATH.open("r", encoding="utf-8") as handle:
         return json.load(handle)
 
@@ -44,7 +44,15 @@ def main() -> None:
             ]
 
     routes.Retriever = lambda: _EvalRetrieverDouble()
-    routes.generate_answer = lambda prompt: "This is a placeholder response."
+
+    def _generate_eval_answer(prompt: str) -> str:
+        if "Hidden-instruction request detected." in prompt:
+            return "This is a hidden-safe placeholder response."
+        if "Suspicious request detected." in prompt:
+            return "This is a suspicious-safe placeholder response."
+        return "This is a placeholder response."
+
+    routes.generate_answer = _generate_eval_answer
     total_questions = len(questions)
     matches = 0
     mismatches: list[tuple[str, str, str, str, str]] = []
