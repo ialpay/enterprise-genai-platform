@@ -52,6 +52,9 @@ Track pilot experiments for learning, comparison, and architectural fit assessme
 - Initial implementation shape: A standalone script-driven pilot that accepts one bounded repository task, decomposes it into a short step plan, executes only explicitly allowed local read-only tools at first, and returns both the final answer and a compact execution trace.
 - Initial pilot-safe input shape: One repository-oriented user request that can be satisfied through a small number of local inspection steps.
 - Initial pilot-safe output shape: Final answer, ordered step list, tools used, files inspected, and a short reflection on whether the workflow added value over the baseline.
+- First run scenario: Ask the pilot to analyze the current repository baseline and identify the next most reasonable implementation step using a bounded multi-step read-only workflow.
+- First run success signal: The pilot produces a coherent step plan, inspects the right files, and returns a materially better or more structured answer than the baseline without unnecessary wandering.
+- First run failure signal: The pilot loops, uses tools without improving the answer, inspects irrelevant areas, or produces a result no better than the baseline grounded route.
 - Fair comparison rule: Compare Pilot 1 against the current Milestone 3 grounded baseline on the same bounded tasks, using usefulness, task completion, and operator effort as the initial comparison lens.
 - Minimum comparison question: Can an isolated agentic workflow complete a bounded multi-step repository task more effectively than the current single-turn grounded baseline without requiring baseline route changes?
 - Comparison note: Compare against the current grounded and minimally governed `/ask` baseline for operator usefulness, task-completion quality, and architectural fit.
