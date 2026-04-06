@@ -12,6 +12,7 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from app.api import routes
 from app.api.schemas import AskRequest
+from app.retrieval.retriever import RetrievalResult
 
 EVAL_PATH = PROJECT_ROOT / "data" / "evaluation" / "eval_questions.json"
 
@@ -22,6 +23,19 @@ def load_questions() -> list[dict[str, str]]:
 
 
 def main() -> None:
+    class _EvalRetrieverDouble:
+        def retrieve(self, question: str) -> list[RetrievalResult]:
+            return [
+                RetrievalResult(
+                    text=f"Evaluation context for: {question}",
+                    source_file="eval_stub.md",
+                    source_type="internal_docs",
+                    chunk_index=0,
+                    score=0.99,
+                )
+            ]
+
+    routes.Retriever = lambda: _EvalRetrieverDouble()
     routes.generate_answer = lambda prompt: "This is a placeholder response."
     questions = load_questions()
     total_questions = len(questions)
