@@ -32,7 +32,7 @@ Track pilot experiments for learning, comparison, and architectural fit assessme
 
 | Pilot | Status | Branch | Entrypoint | Collection | Baseline Ref |
 |---|---|---|---|---|---|
-| Agentic workflows | active | `pilot/agentic-workflows` | `TBD` | `not applicable` | `Milestone 3 baseline / 2026-04-06` |
+| Agentic workflows | active | `pilot/agentic-workflows` | `scripts/pilot_agentic_workflow.py` | `not applicable` | `Milestone 3 baseline / 2026-04-06` |
 | Conversational memory and context management | paused | `TBD` | `TBD` | `pilot_memory_context` | `Milestone 3 baseline / 2026-04-06` |
 | Multimodal / document-intelligence | paused | `TBD` | `TBD` | `pilot_multimodal_docs` | `TBD` |
 
@@ -43,11 +43,13 @@ Track pilot experiments for learning, comparison, and architectural fit assessme
 - Status: `active`
 - Baseline reference: `Milestone 3 baseline / 2026-04-06`
 - Branch/location: `pilot/agentic-workflows`
-- Isolated entrypoint: `TBD`
+- Isolated entrypoint: `scripts/pilot_agentic_workflow.py`
 - Isolated collection: `not applicable`
-- Isolation rules: Must not change the live `/ask` route or baseline status documents.
-- Comparison note: Compare against the current grounded and minimally governed baseline for learning value and architectural fit.
-- Promotion test: Consider promotion only if the pilot delivers clear value beyond the current baseline and can be integrated with deterministic validation and operationally understandable behavior.
+- Isolation rules: Must run outside the live `/ask` route, must not use feature flags as the default isolation method, must not update live baseline status/history docs, and must use a separate collection only if retrieval/indexing is later introduced inside the pilot.
+- Comparison note: Compare against the current grounded and minimally governed `/ask` baseline for operator usefulness, task-completion quality, and architectural fit.
+- Non-goals: Do not replace the live `/ask` route, do not introduce memory as part of this pilot, do not add multimodal behavior, and do not treat pilot output as baseline progress.
+- Promotion test: Consider promotion only if the pilot shows clear value on multi-step task completion or tool-using workflow support beyond the current grounded baseline while remaining deterministic enough to validate and operationally understandable.
+- Discard / pause condition: Pause or discard if the pilot mostly reproduces the current grounded route, requires invasive baseline changes to be useful, or fails to show a clear learning or architectural-fit advantage.
 
 ### Conversational memory and context management
 - Purpose: Explore memory/context handling outside the live baseline to assess whether it improves assistant continuity without degrading control.
