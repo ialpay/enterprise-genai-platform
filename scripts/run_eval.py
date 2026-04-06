@@ -23,8 +23,16 @@ def load_questions() -> list[dict[str, str]]:
 
 
 def main() -> None:
+    questions = load_questions()
+    no_context_by_question = {
+        item.get("question", ""): bool(item.get("simulate_no_context", False))
+        for item in questions
+    }
+
     class _EvalRetrieverDouble:
         def retrieve(self, question: str) -> list[RetrievalResult]:
+            if no_context_by_question.get(question, False):
+                return []
             return [
                 RetrievalResult(
                     text=f"Evaluation context for: {question}",
@@ -37,10 +45,9 @@ def main() -> None:
 
     routes.Retriever = lambda: _EvalRetrieverDouble()
     routes.generate_answer = lambda prompt: "This is a placeholder response."
-    questions = load_questions()
     total_questions = len(questions)
     matches = 0
-    mismatches: list[tuple[str, str, str]] = []
+    mismatches: list[tuple[str, str, str, str, str]] = []
 
     print(f"Loaded {total_questions} evaluation questions.")
 
@@ -48,22 +55,32 @@ def main() -> None:
         question_id = item.get("id", "")
         question_text = item.get("question", "")
         expected_answer = item.get("expected_answer", "")
+        expected_source = item.get("expected_source", "grounded_retrieval")
 
         response = routes.ask(AskRequest(question=question_text))
         answer = response.answer
-        matched = answer == expected_answer
+        source = response.source
+        answer_matched = answer == expected_answer
+        source_matched = source == expected_source
+        matched = answer_matched and source_matched
 
         print("\n---")
         print(f"ID: {question_id}")
         print(f"Question: {question_text}")
         print(f"Expected answer: {expected_answer}")
         print(f"Returned answer: {answer}")
-        print(f"Answer matched: {matched}")
+        print(f"Expected source: {expected_source}")
+        print(f"Returned source: {source}")
+        print(f"Answer matched: {answer_matched}")
+        print(f"Source matched: {source_matched}")
+        print(f"Case matched: {matched}")
 
         if matched:
             matches += 1
         else:
-            mismatches.append((question_id, expected_answer, answer))
+            mismatches.append(
+                (question_id, expected_answer, answer, expected_source, source)
+            )
 
     match_pct = (matches / total_questions * 100) if total_questions else 0.0
 
@@ -73,9 +90,12 @@ def main() -> None:
     print(f"Answer match percentage: {match_pct:.1f}%")
 
     if mismatches:
-        print("\n=== Misses (Answer Mismatch) ===")
-        for question_id, expected_answer, answer in mismatches:
-            print(f"{question_id} | expected: {expected_answer} | got: {answer}")
+        print("\n=== Misses (Answer/Source Mismatch) ===")
+        for question_id, expected_answer, answer, expected_source, source in mismatches:
+            print(
+                f"{question_id} | expected answer: {expected_answer} | got answer: {answer} | "
+                f"expected source: {expected_source} | got source: {source}"
+            )
 
 
 if __name__ == "__main__":

@@ -2,16 +2,26 @@
   {
     "id": "baseline_01",
     "question": "What is the platform status?",
-    "expected_answer": "This is a placeholder response."
+    "expected_answer": "This is a placeholder response.",
+    "expected_source": "grounded_retrieval"
   },
   {
     "id": "baseline_02",
     "question": "How do I start the platform?",
-    "expected_answer": "This is a placeholder response."
+    "expected_answer": "This is a placeholder response.",
+    "expected_source": "grounded_retrieval"
   },
   {
     "id": "baseline_03",
     "question": "What is the AI usage policy?",
-    "expected_answer": "This is a placeholder response."
+    "expected_answer": "This is a placeholder response.",
+    "expected_source": "grounded_retrieval"
+  },
+  {
+    "id": "grounded_no_context_01",
+    "question": "No grounded context available for this question.",
+    "expected_answer": "insufficient information",
+    "expected_source": "grounded_no_context",
+    "simulate_no_context": true
   }
 ]
