@@ -7,12 +7,14 @@ Purpose:
 - define or refine milestone sequencing
 - add or tighten future task definitions
 - prepare role-specific prompt packs
+- define or refine isolated pilot-lane work without treating it as baseline progress
 
 Rules:
 - keep planning grounded in `docs/status.md` and the verified baseline
 - use milestones with meaningful achievements rather than unrelated task piles
 - do not mark future work as complete
 - trigger routine next-step workflow actions proactively rather than waiting for them to be requested again
+- keep pilot tracking separate from baseline status/history tracking
 
 ### 1. Implementation Task
 Purpose:
@@ -63,6 +65,17 @@ Examples:
 11. Merge only after validation, review pass, and branch finalization
 12. If accepted merged work requires state/history updates, run a separate completion/handover task
 13. If that completion/handover task closes a milestone, hold the Planner/Owner milestone review before starting the next milestone
+
+## Pilot Flow
+
+1. Confirm the current verified baseline from `docs/status.md`
+2. Define or update the pilot entry in `docs/pilot-track.md`
+3. Start the pilot on an isolated branch
+4. Use isolated entrypoints and separate collections where relevant
+5. Keep pilot outcomes out of live baseline docs
+6. Compare pilot behavior against the baseline
+7. Decide whether the pilot is active, paused, discarded, or a promotion candidate
+8. Only if promoted, convert the pilot into normal baseline milestone work
 
 ## Required Task Summary
 
