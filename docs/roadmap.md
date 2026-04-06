@@ -11,6 +11,9 @@ Build a disciplined enterprise-style GenAI repository that evolves from a verifi
 - FastAPI application shell
 - Health endpoint
 - Retrieval-grounded `/ask` endpoint that uses retrieved context plus grounded prompting
+- Deterministic request classification on the live `/ask` route
+- Basic audit visibility for live `/ask` request handling
+- Minimal safety handling for suspicious override and hidden-instruction requests
 - Explicit insufficient-context handling in `/ask`
 - Stable `/ask` error path for Ollama unavailability (HTTP 502)
 - Local ingestion pipeline for tracked source folders into Qdrant
@@ -35,24 +38,24 @@ Build a disciplined enterprise-style GenAI repository that evolves from a verifi
 
 ## Current Phase
 
-Milestone 2 review gate and Milestone 3 entry planning.
+Milestone 3 review gate and next milestone planning.
 
 ## Now
 
-- Hold the Milestone 2 review gate
-- Prepare the next milestone from the grounded retrieval baseline
+- Hold the Milestone 3 review gate
+- Prepare the next milestone from the grounded, minimally governed retrieval baseline
 - Keep baseline claims conservative: future modules remain non-live until integrated and verified
 
 ## Next
 
-- Start the next milestone only after the Milestone 2 review gate closes
+- Start the next milestone only after the Milestone 3 review gate closes
 - Expand capability only when route behavior and tests confirm integration
 - Keep governance and observability sequencing tied to verified live behavior
 
 ## Later
 
 - Further retrieval refinement and answer-quality tuning
-- Governance expansion tied to live application behavior
+- Further governance and observability hardening tied to live application behavior
 - Evaluation maturity tied to integrated functionality
 - Operational maturity for the real application path
 - Packaging and architecture maturity tied to verified baseline
