@@ -113,6 +113,8 @@ Current required checks:
 6. Temporary cross-chat handoff files may be stored under `.run/handoffs/` during an active milestone, but they are not project memory and should be deleted after the milestone closes.
 7. Routine workflow steps should happen automatically and in order; they should not depend on the Owner restating them each time.
 8. A task is not merge-ready merely because Reviewer passed; accepted work must also be isolated and left in a clean merge-ready branch state.
+9. Pilot experiments must not be treated as live baseline work unless they are later promoted through the normal milestone process.
+10. Pilot progress should be tracked only in `docs/pilot-track.md`, not in live baseline status/history documents.
 
 ## Lifecycle
 
@@ -178,6 +180,16 @@ Owner:
 - milestone planning must remain grounded in the integrated and verified baseline
 - temporary handoff artifacts used during a milestone should be cleaned up after milestone closure
 - accepted implementation tasks must be finalized into clean merge-ready branch states before merge sequence continues
+
+## Pilot Rule
+
+- use a two-lane model:
+  - Lane A = official baseline lane on `main`
+  - Lane B = isolated pilot lane for learning experiments
+- pilots should prefer separate branches, isolated entrypoints, and separate collections when retrieval or indexing behavior changes
+- do not use feature flags as the default first isolation method for pilots
+- pilots are for learning, comparison, pause/discard decisions, or later promotion consideration
+- only promoted pilots may enter the baseline milestone flow
 
 ## Branch Rules
 
