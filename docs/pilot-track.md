@@ -49,6 +49,9 @@ Track pilot experiments for learning, comparison, and architectural fit assessme
 - Initial evaluation boundary: Start with bounded repository-oriented tasks that require more than one step of reasoning or tool use but do not require autonomous long-running background execution.
 - In scope first: Multi-step repository questions, structured repo inspection, bounded tool-using workflows, and planner-style decomposition followed by explicit tool use.
 - Out of scope first: Changes to the live `/ask` route, memory features, multimodal handling, autonomous long-running jobs, or any pilot that requires baseline route replacement.
+- Initial implementation shape: A standalone script-driven pilot that accepts one bounded repository task, decomposes it into a short step plan, executes only explicitly allowed local read-only tools at first, and returns both the final answer and a compact execution trace.
+- Initial pilot-safe input shape: One repository-oriented user request that can be satisfied through a small number of local inspection steps.
+- Initial pilot-safe output shape: Final answer, ordered step list, tools used, files inspected, and a short reflection on whether the workflow added value over the baseline.
 - Fair comparison rule: Compare Pilot 1 against the current Milestone 3 grounded baseline on the same bounded tasks, using usefulness, task completion, and operator effort as the initial comparison lens.
 - Minimum comparison question: Can an isolated agentic workflow complete a bounded multi-step repository task more effectively than the current single-turn grounded baseline without requiring baseline route changes?
 - Comparison note: Compare against the current grounded and minimally governed `/ask` baseline for operator usefulness, task-completion quality, and architectural fit.
