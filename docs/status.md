@@ -6,19 +6,22 @@
 
 ## Current Phase
 
-Milestone 2 review gate and Milestone 3 entry planning.
+Milestone 3 review gate and next milestone planning.
 
 ## Current Focus
 
-- Hold the Milestone 2 review gate
-- Keep live baseline claims aligned to merged grounded retrieval behavior
-- Prepare the next phase from the grounded `/ask` baseline
+- Hold the Milestone 3 review gate
+- Keep live baseline claims aligned to merged grounded retrieval, classification, audit, and safety behavior
+- Prepare the next phase from the grounded, minimally governed `/ask` baseline
 
 ## Verified Application Baseline
 
 - FastAPI application shell is present
 - `GET /health` is implemented and verified
 - `POST /ask` is grounded through retrieval plus grounded prompting
+- `POST /ask` includes deterministic request classification on the original user question
+- `POST /ask` emits lightweight audit/decision logs for request handling
+- `POST /ask` applies minimal safety handling for suspicious override and hidden-instruction requests
 - `/ask` handles insufficient retrieved context explicitly
 - Ingestion works locally from tracked source folders into Qdrant
 - Retrieval-layer behavior has deterministic validation coverage
@@ -45,6 +48,10 @@ Advanced application modules for retrieval, ingestion, prompting, and vector int
 
 ## Completed Recently
 
+- Task 71: live request-classification helpers added for the grounded `/ask` route
+- Task 72: basic audit logging added for the live `/ask` path
+- Task 73: minimal safe handling added for suspicious and hidden-instruction requests
+- Task 74: validation expanded for classification-aware live behavior
 - Task 66: ingestion pipeline made locally runnable from tracked source folders into Qdrant
 - Task 67: deterministic retrieval-layer validation added before route integration
 - Task 68: `/ask` moved to a grounded retrieval flow with grounded prompting and explicit insufficient-context handling
@@ -53,17 +60,17 @@ Advanced application modules for retrieval, ingestion, prompting, and vector int
 
 ## In Progress
 
-- Milestone 2 review gate (Planner + Owner)
+- Milestone 3 review gate (Planner + Owner)
 
 ## Next Recommended Work
 
-1. Complete the Milestone 2 review gate and confirm completion status
+1. Complete the Milestone 3 review gate and confirm completion status
 2. Only after that gate closes, begin the next milestone from the grounded `/ask` baseline
 3. Continue enforcing baseline truth: future changes are only live once integrated and verified
 
 ## Risks / Blockers
 
-- Milestone 2 should not be treated as closed until review-gate confirmation is recorded
+- Milestone 3 should not be treated as closed until review-gate confirmation is recorded
 - Advanced modules in the tree may be mistaken for completed live functionality if integration and verification are skipped
 - Future milestone sequencing can drift if staged code is treated as live before route integration and verification
 

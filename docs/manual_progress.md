@@ -206,11 +206,26 @@ Operating result:
 
 - Evaluation and baseline tests now match the grounded `/ask` behavior more closely
 
+## Step 17 — Milestone 3 Tasks 71-74: Governance and Observability on the Live Route
+Completed tasks:
+
+- Added deterministic request classification to the live `/ask` path
+- Added lightweight audit logging for request handling and classification decisions
+- Added minimal safety handling for suspicious override and hidden-instruction requests
+- Updated validation and evaluation to reflect classification-aware live behavior
+
+Operating result:
+
+- The grounded `/ask` route now has minimal live governance and observability without introducing broader policy machinery
+
 ## Current Status
-Post-Milestone-2 baseline now includes:
+Post-Milestone-3 baseline now includes:
 
 - FastAPI with verified `GET /health`
 - Grounded `POST /ask` that uses retrieval plus grounded prompting
+- Deterministic request classification on `/ask`
+- Basic audit visibility for live request handling
+- Minimal safety handling for suspicious override and hidden-instruction requests
 - Explicit insufficient-context handling in `/ask`
 - Local ingestion path for tracked source folders into Qdrant
 - Deterministic retrieval validation for helper behavior
@@ -221,4 +236,4 @@ Post-Milestone-2 baseline now includes:
 - Governance and protected-PR workflow baseline
 
 ## Next Step
-Run the Milestone 2 review gate, then only move forward once the grounded baseline is formally confirmed.
+Run the Milestone 3 review gate, then only move forward once the minimally governed grounded baseline is formally confirmed.
