@@ -162,15 +162,63 @@ Operating result:
 
 - Repository memory now reflects the merged Milestone 1 baseline without marking staged retrieval modules as live or treating the milestone as closed before the review gate
 
+## Step 13 — Milestone 2 Task 66: Ingestion Run Coherence
+Completed tasks:
+
+- Made the tracked ingestion path locally runnable from the repository source folders into Qdrant
+- Kept the ingestion workflow grounded in the existing tracked document layout
+- Preserved simple failure handling for local ingestion runs
+
+Operating result:
+
+- Tracked source documents can now flow through a coherent local ingestion path
+
+## Step 14 — Milestone 2 Task 67: Retrieval Validation
+Completed tasks:
+
+- Added deterministic retrieval-layer validation using doubles/fakes instead of live services
+- Covered retrieval helper behavior such as query expansion, thresholding, and filtering decisions
+- Kept the validation independent of live Ollama and Qdrant
+
+Operating result:
+
+- Retrieval helper behavior is now directly validated in a CI-safe way
+
+## Step 15 — Milestone 2 Task 68: Grounded `/ask` Integration
+Completed tasks:
+
+- Integrated retrieval into the live `/ask` flow
+- Built grounded prompts from retrieved context before model generation
+- Added explicit handling for insufficient grounded context
+
+Operating result:
+
+- `/ask` now answers through retrieval plus grounded prompting instead of direct ungrounded model passthrough
+
+## Step 16 — Milestone 2 Task 69: Evaluation Alignment
+Completed tasks:
+
+- Updated the evaluation runner to reflect the grounded route shape
+- Kept the evaluation path deterministic and CI-safe
+- Aligned the question set with the grounded baseline behavior
+
+Operating result:
+
+- Evaluation and baseline tests now match the grounded `/ask` behavior more closely
+
 ## Current Status
-Post-Milestone-1 baseline now includes:
+Post-Milestone-2 baseline now includes:
 
 - FastAPI with verified `GET /health`
-- Ollama-backed `POST /ask` with stable error handling
+- Grounded `POST /ask` that uses retrieval plus grounded prompting
+- Explicit insufficient-context handling in `/ask`
+- Local ingestion path for tracked source folders into Qdrant
+- Deterministic retrieval validation for helper behavior
+- Evaluation runner and question set aligned to grounded retrieval behavior
 - Stabilized config/dependency baseline for tracked modules
 - Deterministic contract tests for API/config/prompt/retrieval helpers
 - Coherent local run documentation and startup/shutdown scripts
 - Governance and protected-PR workflow baseline
 
 ## Next Step
-Run the Milestone 1 review gate, then start Milestone 2 Task 66 (local ingestion run coherence) without treating staged retrieval modules as live baseline until integrated and verified.
+Run the Milestone 2 review gate, then only move forward once the grounded baseline is formally confirmed.

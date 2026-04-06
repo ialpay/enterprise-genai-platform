@@ -177,3 +177,26 @@ This can make the repository appear less mature than the amount of code present 
 ### Future evolution
 
 As more functionality becomes integrated and verified, the authoritative baseline can advance. The rule remains the same: presence in the tree is not enough; integration and verification are required.
+
+
+## Decision: Ground the live `/ask` route through retrieval before generation
+
+### Decision
+
+Use retrieved context as the basis for the live `/ask` answer path, then build a grounded prompt before calling the model.
+
+### Context
+
+Milestone 2 moved the live question route away from direct ungrounded model passthrough and into a retrieval-plus-prompting flow that can also report insufficient context explicitly.
+
+### Why this choice was made
+
+Grounding the route in retrieval reduces hallucination risk and keeps answers tied to repository-backed source material instead of relying on the model alone.
+
+### Trade-offs
+
+This adds ingestion, retrieval, and prompt-building dependencies to the request path, so answer quality now depends on retrieval quality and source freshness.
+
+### Future evolution
+
+The grounded route can evolve with better retrieval, better source coverage, and stronger evaluation, but the core design remains: retrieve first, then generate from context.
