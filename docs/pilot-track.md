@@ -59,9 +59,22 @@ Track pilot experiments for learning, comparison, and architectural fit assessme
 - Minimum comparison question: Can an isolated agentic workflow complete a bounded multi-step repository task more effectively than the current single-turn grounded baseline without requiring baseline route changes?
 - Comparison note: Compare against the current grounded and minimally governed `/ask` baseline for operator usefulness, task-completion quality, and architectural fit.
 - Learning signal: Continue only if the pilot shows clearly better multi-step task completion, tool-use sequencing, or operator leverage than the current grounded baseline.
+- Phase 2 direction: Extend the shell-stage pilot into a planning-first bounded hybrid agent while keeping the script as execution authority.
+- Phase 2 hybrid shape: Code continues to validate requests, derive bounded targets, execute read-only tools, enforce caps and stop conditions, and assemble the output structure. Ollama assists only with short-horizon planning inside those script-enforced limits.
+- Phase 2 runtime loop: Validate request -> derive bounded targets in code -> request a short plan from Ollama -> trim/normalize the plan to script limits -> execute only allowlisted read-only inspection steps -> assemble the final answer in code from inspected evidence and trace.
+- Phase 2 guardrails: No model-directed tool expansion, no model-directed path expansion beyond script-approved targets, no final-answer freeform generation by Ollama, no write actions, no long loops, and deterministic fallback to code-only planning if Ollama is unavailable.
 - Non-goals: Do not replace the live `/ask` route, do not introduce memory as part of this pilot, do not add multimodal behavior, and do not treat pilot output as baseline progress.
 - Promotion test: Consider promotion only if the pilot shows clear value on multi-step task completion or tool-using workflow support beyond the current grounded baseline while remaining deterministic enough to validate and operationally understandable.
 - Discard / pause condition: Pause or discard if the pilot mostly reproduces the current grounded route, requires invasive baseline changes to be useful, or fails to show a clear learning or architectural-fit advantage.
+- First bounded comparison result (Task 79, pilot-only, 2026-04-07):
+  - Pilot-only note: This is an isolated pilot learning record and is not live baseline progress.
+  - Scenario used: `pilot1_first_bounded_repo_comparison` with request: "Analyze the current repository baseline and identify the next most reasonable implementation step using a bounded multi-step read-only workflow."
+  - What the pilot inspected: `docs/pilot-track.md`, `docs/status.md`, and `docs/codex_tasks.md` via bounded `read_file_excerpt` actions (all status `ok`).
+  - What answer the pilot produced: "The next most reasonable implementation step is to Complete the Milestone 3 review gate and confirm completion status. Pilot evidence confirms this conclusion with bounded read-only inspection of pilot scope, live status, and task-definition files."
+  - Baseline-style comparison summary: Baseline-style answer converged on the same next step; pilot output added explicit inspected files and traceable tool actions, while baseline style did not surface an explicit tool trace.
+  - Usefulness judgment: `pilot_more_useful = true` for operator visibility and traceability with equivalent task-completion outcome.
+  - Decision: `continue`
+- Phase 2 planning question: Does planning-only Ollama assistance improve bounded repository inspection usefulness over the current shell-stage pilot without weakening control, traceability, or operator understanding?
 
 ### Conversational memory and context management
 - Purpose: Explore memory/context handling outside the live baseline to assess whether it improves assistant continuity without degrading control.
