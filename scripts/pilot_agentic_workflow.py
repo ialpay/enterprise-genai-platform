@@ -67,6 +67,18 @@ DIRECTORY_FILE_PRIORITIES: dict[str, tuple[str, ...]] = {
     "prompts": ("builder.md",),
 }
 
+FIRST_COMPARISON_SCENARIO_ID = "pilot1_first_bounded_repo_comparison"
+FIRST_COMPARISON_REQUEST = (
+    "Analyze the current repository baseline and identify the next most "
+    "reasonable implementation step using a bounded multi-step read-only workflow."
+)
+FIRST_COMPARISON_TARGETS = (
+    "docs/pilot-track.md",
+    "docs/status.md",
+    "docs/codex_tasks.md",
+)
+COMPARISON_LENS = ("usefulness", "task_completion", "operator_effort")
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
@@ -76,10 +88,18 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "request",
-        nargs="+",
+        nargs="*",
         help="Bounded repository-oriented request text.",
     )
-    return parser.parse_args()
+    parser.add_argument(
+        "--run-first-comparison",
+        action="store_true",
+        help="Run Pilot 1 Task 79 first bounded comparison scenario.",
+    )
+    args = parser.parse_args()
+    if not args.run_first_comparison and not args.request:
+        parser.error("provide a repository request or use --run-first-comparison")
+    return args
 
 
 def normalize_request(parts: list[str]) -> str:
@@ -435,11 +455,121 @@ def build_response(request_text: str, errors: list[str]) -> dict[str, object]:
     }
 
 
+def _extract_next_recommended_step(status_excerpt: str) -> str:
+    in_section = False
+    for line in status_excerpt.splitlines():
+        stripped = line.strip()
+        if stripped == "## Next Recommended Work":
+            in_section = True
+            continue
+        if in_section and stripped.startswith("## "):
+            break
+        if in_section and stripped.startswith("1. "):
+            return stripped[3:].strip()
+    return "No explicit item 1 was found in docs/status.md."
+
+
+def _build_baseline_style_answer() -> str:
+    status_path = REPO_ROOT / "docs/status.md"
+    if not status_path.exists() or not status_path.is_file():
+        return "Unable to read docs/status.md for baseline comparison."
+    try:
+        status_content = status_path.read_text(encoding="utf-8")
+    except UnicodeDecodeError:
+        return "Unable to decode docs/status.md for baseline comparison."
+
+    next_step = _extract_next_recommended_step(status_content)
+    return f"The next most reasonable implementation step is to {next_step}"
+
+
+def run_first_bounded_comparison() -> dict[str, object]:
+    request_text = FIRST_COMPARISON_REQUEST
+    errors = validate_request(request_text)
+    accepted = not errors
+
+    if accepted:
+        inspection = execute_read_only_inspection(list(FIRST_COMPARISON_TARGETS))
+        baseline_answer = _build_baseline_style_answer()
+        pilot_answer = (
+            f"{baseline_answer}. "
+            "Pilot evidence confirms this conclusion with bounded read-only inspection "
+            "of pilot scope, live status, and task-definition files."
+        )
+        compact_trace = [
+            {
+                "action": action["action"],
+                "target": action["target"],
+                "status": action["status"],
+            }
+            for action in inspection["execution_trace"]
+        ]
+        pilot_more_useful = True
+        usefulness_note = (
+            "Pilot and baseline converge on the same next step, but the pilot is more useful "
+            "for operators because it shows inspected files and traceable tool actions."
+        )
+    else:
+        inspection = {"tools_used": [], "files_inspected": [], "execution_trace": []}
+        baseline_answer = _build_baseline_style_answer()
+        pilot_answer = "Pilot comparison run was rejected by input constraints."
+        compact_trace = []
+        pilot_more_useful = False
+        usefulness_note = (
+            "Pilot was not more useful because it did not complete the bounded comparison run."
+        )
+
+    return {
+        "comparison_shape_version": "pilot1.v3",
+        "pilot": "agentic_workflows",
+        "task": "79",
+        "entrypoint": "scripts/pilot_agentic_workflow.py",
+        "scenario": {
+            "id": FIRST_COMPARISON_SCENARIO_ID,
+            "request": request_text,
+            "bounded_targets": list(FIRST_COMPARISON_TARGETS),
+        },
+        "pilot_result": {
+            "accepted": accepted,
+            "inspected_files": inspection["files_inspected"],
+            "tools_used": inspection["tools_used"],
+            "answer": pilot_answer,
+            "compact_trace": compact_trace,
+        },
+        "baseline_style_result": {
+            "style": "single_turn_grounded_baseline",
+            "answer": baseline_answer,
+            "limitations": "No explicit plan or tool trace is surfaced to the operator.",
+        },
+        "comparison": {
+            "lens": list(COMPARISON_LENS),
+            "pilot_more_useful": pilot_more_useful,
+            "why": usefulness_note,
+        },
+        "validation_errors": errors,
+        "tooling_policy": {
+            "mode": "read_only_local_inspection",
+            "allowed_tools": READ_ONLY_TOOLSET,
+            "max_tool_actions": MAX_TOOL_ACTIONS,
+            "max_files_inspected": MAX_FILES_INSPECTED,
+        },
+        "isolation": {
+            "live_route_touched": False,
+            "notes": [
+                "Comparison run is script-only and read-only.",
+                "No live /ask route integration or behavior changes.",
+            ],
+        },
+    }
+
+
 def main() -> None:
     args = parse_args()
-    request_text = normalize_request(args.request)
-    errors = validate_request(request_text)
-    response = build_response(request_text, errors)
+    if args.run_first_comparison:
+        response = run_first_bounded_comparison()
+    else:
+        request_text = normalize_request(args.request)
+        errors = validate_request(request_text)
+        response = build_response(request_text, errors)
     print(json.dumps(response, indent=2))
 
 

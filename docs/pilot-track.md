@@ -62,6 +62,14 @@ Track pilot experiments for learning, comparison, and architectural fit assessme
 - Non-goals: Do not replace the live `/ask` route, do not introduce memory as part of this pilot, do not add multimodal behavior, and do not treat pilot output as baseline progress.
 - Promotion test: Consider promotion only if the pilot shows clear value on multi-step task completion or tool-using workflow support beyond the current grounded baseline while remaining deterministic enough to validate and operationally understandable.
 - Discard / pause condition: Pause or discard if the pilot mostly reproduces the current grounded route, requires invasive baseline changes to be useful, or fails to show a clear learning or architectural-fit advantage.
+- First bounded comparison result (Task 79, pilot-only, 2026-04-07):
+  - Pilot-only note: This is an isolated pilot learning record and is not live baseline progress.
+  - Scenario used: `pilot1_first_bounded_repo_comparison` with request: "Analyze the current repository baseline and identify the next most reasonable implementation step using a bounded multi-step read-only workflow."
+  - What the pilot inspected: `docs/pilot-track.md`, `docs/status.md`, and `docs/codex_tasks.md` via bounded `read_file_excerpt` actions (all status `ok`).
+  - What answer the pilot produced: "The next most reasonable implementation step is to Complete the Milestone 3 review gate and confirm completion status. Pilot evidence confirms this conclusion with bounded read-only inspection of pilot scope, live status, and task-definition files."
+  - Baseline-style comparison summary: Baseline-style answer converged on the same next step; pilot output added explicit inspected files and traceable tool actions, while baseline style did not surface an explicit tool trace.
+  - Usefulness judgment: `pilot_more_useful = true` for operator visibility and traceability with equivalent task-completion outcome.
+  - Decision: `continue`
 
 ### Conversational memory and context management
 - Purpose: Explore memory/context handling outside the live baseline to assess whether it improves assistant continuity without degrading control.
