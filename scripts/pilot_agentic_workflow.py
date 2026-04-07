@@ -7,6 +7,7 @@ import json
 
 MAX_REQUEST_CHARS = 400
 MAX_REQUEST_WORDS = 80
+MAX_PLAN_STEPS = 3
 REPOSITORY_HINTS = {
     ".py",
     "app/",
@@ -22,6 +23,19 @@ REPOSITORY_HINTS = {
     "script",
     "scripts/",
 }
+
+FOCUS_TARGET_RULES = (
+    (("route", "routes", "endpoint", "/ask", "/health", "api"), "app/api/"),
+    (("config", "setting", "env", "environment"), "app/core/config.py"),
+    (
+        ("retrieval", "retriever", "qdrant", "embedding", "vector", "ingest"),
+        "app/retrieval/",
+    ),
+    (("prompt", "grounded"), "app/ai/prompts.py"),
+    (("test", "tests", "validation", "pytest"), "tests/"),
+    (("script", "scripts", "pilot"), "scripts/"),
+    (("doc", "docs", "architecture", "status", "task"), "docs/"),
+)
 
 
 def parse_args() -> argparse.Namespace:
@@ -58,19 +72,61 @@ def validate_request(request_text: str) -> list[str]:
     return errors
 
 
+def derive_focus_targets(request_text: str) -> list[str]:
+    lower = request_text.lower()
+    targets: list[str] = []
+    for keywords, target in FOCUS_TARGET_RULES:
+        if any(keyword in lower for keyword in keywords):
+            targets.append(target)
+    if not targets:
+        targets.append("docs/codex_tasks.md")
+    return targets[:MAX_PLAN_STEPS]
+
+
+def build_ordered_step_plan(request_text: str) -> list[dict[str, object]]:
+    targets = derive_focus_targets(request_text)
+    step_two_details = ", ".join(targets)
+    return [
+        {
+            "step": 1,
+            "name": "Confirm bounded scope",
+            "details": (
+                "Restate the repository request and keep the workflow within "
+                f"{MAX_PLAN_STEPS} planned steps."
+            ),
+        },
+        {
+            "step": 2,
+            "name": "Inspect likely locations",
+            "details": f"Read only the most relevant paths first: {step_two_details}.",
+        },
+        {
+            "step": 3,
+            "name": "Return grounded summary",
+            "details": (
+                "Provide a concise result tied to inspected files and clearly note "
+                "remaining gaps."
+            ),
+        },
+    ]
+
+
 def build_response(request_text: str, errors: list[str]) -> dict[str, object]:
     accepted = not errors
     if accepted:
         final_answer = (
-            "Pilot shell accepted the request. Planning and tool execution are not "
-            "enabled in Task 76."
+            "Pilot accepted the request and produced a bounded deterministic step "
+            "plan. Tool execution is not enabled in Task 77."
         )
+        ordered_steps = build_ordered_step_plan(request_text)
         reflection = (
-            "This run validates input handling and response shape only; comparison "
-            "value will improve once planning and read-only tool steps are added."
+            "Explicit short-horizon planning is now visible for inspection; "
+            "comparison value should improve further once read-only tool execution "
+            "is added."
         )
     else:
         final_answer = "Pilot shell rejected the request due to input constraints."
+        ordered_steps = []
         reflection = (
             "Input validation protects the pilot boundary and keeps runs bounded, "
             "but this run provides no repository analysis result."
@@ -79,7 +135,7 @@ def build_response(request_text: str, errors: list[str]) -> dict[str, object]:
     return {
         "comparison_shape_version": "pilot1.v1",
         "pilot": "agentic_workflows",
-        "task": "76",
+        "task": "77",
         "entrypoint": "scripts/pilot_agentic_workflow.py",
         "accepted": accepted,
         "input": {
@@ -92,7 +148,7 @@ def build_response(request_text: str, errors: list[str]) -> dict[str, object]:
         },
         "pilot_response": {
             "final_answer": final_answer,
-            "ordered_steps": [],
+            "ordered_steps": ordered_steps,
             "tools_used": [],
             "files_inspected": [],
             "reflection": reflection,
