@@ -4679,3 +4679,150 @@ Before authorizing a later milestone, Planner and Owner review:
 - whether the live route is now honest, grounded, and minimally governed
 - what the next most valuable milestone should be
 - whether the next stage should focus on ops maturity, retrieval quality, packaging, or cloud mapping
+
+
+## Pilot Lane — Pilot 1: Agentic Workflows
+
+### Pilot-only rule
+
+The tasks below are pilot-only.
+They are not live-baseline milestones.
+They must not change the official `/ask` baseline unless a later promotion decision explicitly converts pilot work into normal milestone work.
+
+### Pilot purpose
+
+Explore whether an isolated agentic workflow can complete bounded multi-step repository tasks more effectively than the current single-turn grounded baseline.
+
+### Pilot completion rule
+
+Pilot 1 is complete when its isolated entrypoint exists, one bounded comparison run is possible, the comparison result is recorded in `docs/pilot-track.md`, and Planner/Owner decide whether the pilot should continue, pause, discard, or become a promotion candidate.
+
+## Task 76 — Create isolated Pilot 1 entrypoint shell
+
+Create the first isolated execution path for the agentic-workflow pilot without touching the live route.
+
+### Goal
+
+Give Pilot 1 a runnable shell that stays fully outside the baseline lane.
+
+### Modify
+
+- `scripts/pilot_agentic_workflow.py`
+- pilot-only helper modules under `app/` only if truly required
+- `tests/` only if direct task-local validation is needed
+
+### Do not modify
+
+- live `/ask` route behavior
+- project-state baseline docs
+- CI workflows
+
+### Requirements
+
+1. Keep the pilot entrypoint isolated from the live baseline.
+2. Accept one bounded repository-oriented request as input.
+3. Return a structured pilot response shape suitable for comparison later.
+4. Keep the implementation shell minimal and reviewable.
+
+### Acceptance criteria
+
+- Pilot 1 has an isolated runnable entrypoint
+- no live baseline route behavior changes are introduced
+
+## Task 77 — Add bounded step planning for Pilot 1
+
+Add a minimal agent-style planning step to Pilot 1 for bounded multi-step repository tasks.
+
+### Goal
+
+Test whether explicit short-horizon planning improves repository-task handling over the current baseline.
+
+### Modify
+
+- `scripts/pilot_agentic_workflow.py`
+- pilot-only helper modules under `app/` only if needed
+- `tests/` only if direct task-local validation is needed
+
+### Do not modify
+
+- live `/ask` route behavior
+- project-state baseline docs
+- CI workflows
+
+### Requirements
+
+1. Produce a short ordered step plan for the incoming bounded task.
+2. Keep the step plan deterministic and easy to inspect.
+3. Do not add long-running or autonomous background behavior.
+
+### Acceptance criteria
+
+- Pilot 1 can decompose one bounded repository task into a short explicit plan
+- planning remains isolated and reviewable
+
+## Task 78 — Add read-only tool execution for Pilot 1
+
+Allow Pilot 1 to execute a small set of explicit read-only local inspection steps.
+
+### Goal
+
+Test whether bounded tool use adds value over the baseline on repository-oriented questions.
+
+### Modify
+
+- `scripts/pilot_agentic_workflow.py`
+- pilot-only helper modules under `app/` only if needed
+- `tests/` only if needed
+
+### Do not modify
+
+- live `/ask` route behavior
+- project-state baseline docs
+- CI workflows
+
+### Requirements
+
+1. Restrict Pilot 1 to explicit read-only local inspection behavior at first.
+2. Keep the execution trace visible in the pilot output.
+3. Avoid open-ended or self-expanding tool loops.
+
+### Acceptance criteria
+
+- Pilot 1 can execute bounded read-only inspection steps
+- output includes a compact execution trace
+- isolation from the live route is preserved
+
+## Task 79 — Run first bounded comparison for Pilot 1
+
+Run the first bounded comparison between Pilot 1 and the current Milestone 3 baseline.
+
+### Goal
+
+Produce the first real learning signal for whether the pilot is worth continuing.
+
+### Modify
+
+- `docs/pilot-track.md`
+- pilot-only script/test files only if needed to support the comparison run
+
+### Do not modify
+
+- live baseline docs
+- live `/ask` route behavior
+- CI workflows
+
+### Requirements
+
+1. Use the first bounded repository-oriented comparison scenario defined for Pilot 1.
+2. Record whether the pilot showed better structure, tool use, or operator leverage than the baseline.
+3. Record one of:
+   - continue
+   - pause
+   - discard
+   - promotion_candidate
+4. Keep the recorded result explicitly pilot-only.
+
+### Acceptance criteria
+
+- the first Pilot 1 comparison result is recorded in `docs/pilot-track.md`
+- the pilot remains clearly outside the official baseline lane

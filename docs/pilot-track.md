@@ -46,7 +46,19 @@ Track pilot experiments for learning, comparison, and architectural fit assessme
 - Isolated entrypoint: `scripts/pilot_agentic_workflow.py`
 - Isolated collection: `not applicable`
 - Isolation rules: Must run outside the live `/ask` route, must not use feature flags as the default isolation method, must not update live baseline status/history docs, and must use a separate collection only if retrieval/indexing is later introduced inside the pilot.
+- Initial evaluation boundary: Start with bounded repository-oriented tasks that require more than one step of reasoning or tool use but do not require autonomous long-running background execution.
+- In scope first: Multi-step repository questions, structured repo inspection, bounded tool-using workflows, and planner-style decomposition followed by explicit tool use.
+- Out of scope first: Changes to the live `/ask` route, memory features, multimodal handling, autonomous long-running jobs, or any pilot that requires baseline route replacement.
+- Initial implementation shape: A standalone script-driven pilot that accepts one bounded repository task, decomposes it into a short step plan, executes only explicitly allowed local read-only tools at first, and returns both the final answer and a compact execution trace.
+- Initial pilot-safe input shape: One repository-oriented user request that can be satisfied through a small number of local inspection steps.
+- Initial pilot-safe output shape: Final answer, ordered step list, tools used, files inspected, and a short reflection on whether the workflow added value over the baseline.
+- First run scenario: Ask the pilot to analyze the current repository baseline and identify the next most reasonable implementation step using a bounded multi-step read-only workflow.
+- First run success signal: The pilot produces a coherent step plan, inspects the right files, and returns a materially better or more structured answer than the baseline without unnecessary wandering.
+- First run failure signal: The pilot loops, uses tools without improving the answer, inspects irrelevant areas, or produces a result no better than the baseline grounded route.
+- Fair comparison rule: Compare Pilot 1 against the current Milestone 3 grounded baseline on the same bounded tasks, using usefulness, task completion, and operator effort as the initial comparison lens.
+- Minimum comparison question: Can an isolated agentic workflow complete a bounded multi-step repository task more effectively than the current single-turn grounded baseline without requiring baseline route changes?
 - Comparison note: Compare against the current grounded and minimally governed `/ask` baseline for operator usefulness, task-completion quality, and architectural fit.
+- Learning signal: Continue only if the pilot shows clearly better multi-step task completion, tool-use sequencing, or operator leverage than the current grounded baseline.
 - Non-goals: Do not replace the live `/ask` route, do not introduce memory as part of this pilot, do not add multimodal behavior, and do not treat pilot output as baseline progress.
 - Promotion test: Consider promotion only if the pilot shows clear value on multi-step task completion or tool-using workflow support beyond the current grounded baseline while remaining deterministic enough to validate and operationally understandable.
 - Discard / pause condition: Pause or discard if the pilot mostly reproduces the current grounded route, requires invasive baseline changes to be useful, or fails to show a clear learning or architectural-fit advantage.
