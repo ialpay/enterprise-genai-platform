@@ -4826,3 +4826,80 @@ Produce the first real learning signal for whether the pilot is worth continuing
 
 - the first Pilot 1 comparison result is recorded in `docs/pilot-track.md`
 - the pilot remains clearly outside the official baseline lane
+
+## Pilot 1 Phase 2 — Planning-First Hybrid Extension
+
+### Phase rule
+
+The tasks below extend Pilot 1 without promoting it.
+They keep Pilot 1 pilot-only, script-first, read-only, and isolated from the live baseline.
+For this phase, Ollama may assist with short-horizon planning only.
+Final answer assembly remains code-controlled.
+
+## Task 80 — Add bounded Ollama-assisted planning for Pilot 1
+
+Introduce planning-only Ollama assistance inside the existing pilot shell.
+
+### Goal
+
+Test whether short-horizon model-assisted planning improves bounded repository inspection without weakening control.
+
+### Modify
+
+- `scripts/pilot_agentic_workflow.py`
+- pilot-only helper modules under `app/` only if needed
+- `tests/` only if direct pilot-local validation is needed
+
+### Do not modify
+
+- live `/ask` route behavior
+- project-state baseline docs
+- CI workflows
+
+### Requirements
+
+1. Keep the script as the execution authority.
+2. Allow Ollama to generate only a short bounded plan from a validated request and script-derived targets.
+3. Keep tool choice, file caps, step caps, and stop conditions code-controlled.
+4. Preserve deterministic fallback to code-only planning if Ollama is unavailable.
+
+### Acceptance criteria
+
+- Pilot 1 can request a bounded short-horizon plan from Ollama
+- the plan remains visibly constrained by script-controlled limits
+- the pilot remains read-only and isolated from the live route
+
+## Task 81 — Compare code-only planning vs planning-assisted behavior
+
+Run a bounded comparison between the current shell-stage planning path and the planning-assisted path.
+
+### Goal
+
+Measure whether planning-only model assistance improves usefulness enough to justify continuing the hybrid direction.
+
+### Modify
+
+- `docs/pilot-track.md`
+- pilot-only script/test files only if needed to support the comparison
+
+### Do not modify
+
+- live baseline docs
+- live `/ask` route behavior
+- CI workflows
+
+### Requirements
+
+1. Use the same bounded repository-oriented scenario for both paths where practical.
+2. Record whether planning-assisted behavior improved structure, focus, or operator usefulness.
+3. Record one of:
+   - continue
+   - pause
+   - discard
+   - promotion_candidate
+4. Keep the recorded result explicitly pilot-only.
+
+### Acceptance criteria
+
+- a planning-phase comparison result is recorded in `docs/pilot-track.md`
+- Pilot 1 remains clearly outside the official baseline lane
