@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+import sys
 from typing import Any
 
 MAX_REQUEST_CHARS = 400
@@ -78,6 +79,12 @@ FIRST_COMPARISON_TARGETS = (
     "docs/codex_tasks.md",
 )
 COMPARISON_LENS = ("usefulness", "task_completion", "operator_effort")
+PLAN_SOURCE_CODE_ONLY = "code_only"
+PLAN_SOURCE_OLLAMA_ASSISTED = "ollama_assisted"
+PLAN_SOURCE_OLLAMA_FALLBACK = "ollama_fallback_to_code"
+
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
 
 def parse_args() -> argparse.Namespace:
@@ -133,9 +140,19 @@ def derive_focus_targets(request_text: str) -> list[str]:
     return targets[:MAX_PLAN_STEPS]
 
 
-def build_ordered_step_plan(request_text: str) -> list[dict[str, object]]:
-    targets = derive_focus_targets(request_text)
-    step_two_details = ", ".join(targets)
+def build_ordered_step_plan(
+    request_text: str,
+    targets: list[str] | None = None,
+    planning_focus: list[str] | None = None,
+) -> list[dict[str, object]]:
+    del request_text  # Request validation and focus derivation are code-controlled upstream.
+    resolved_targets = targets or ["docs/codex_tasks.md"]
+    bounded_targets = resolved_targets[:MAX_PLAN_STEPS]
+    bounded_focus = [item.strip() for item in (planning_focus or []) if item.strip()][:2]
+    step_two_details = ", ".join(bounded_targets)
+    focus_suffix = ""
+    if bounded_focus:
+        focus_suffix = " Model planning focus: " + " | ".join(bounded_focus) + "."
     return [
         {
             "step": 1,
@@ -150,7 +167,7 @@ def build_ordered_step_plan(request_text: str) -> list[dict[str, object]]:
             "name": "Inspect likely locations",
             "details": (
                 "Execute only explicit read-only tools with hard limits against: "
-                f"{step_two_details}."
+                f"{step_two_details}.{focus_suffix}"
             ),
         },
         {
@@ -162,6 +179,107 @@ def build_ordered_step_plan(request_text: str) -> list[dict[str, object]]:
             ),
         },
     ]
+
+
+def _normalize_plan_focus(raw_focus: object) -> list[str]:
+    if not isinstance(raw_focus, list):
+        return []
+
+    normalized: list[str] = []
+    for item in raw_focus:
+        if not isinstance(item, str):
+            continue
+        value = " ".join(item.split())
+        if not value:
+            continue
+        normalized.append(value[:120])
+        if len(normalized) == 2:
+            break
+    return normalized
+
+
+def _extract_assisted_planning_focus(raw_plan_text: str) -> list[str]:
+    cleaned = raw_plan_text.strip()
+    if not cleaned:
+        return []
+
+    try:
+        parsed = json.loads(cleaned)
+    except json.JSONDecodeError:
+        return []
+
+    if isinstance(parsed, dict):
+        return _normalize_plan_focus(parsed.get("focus"))
+    if isinstance(parsed, list):
+        return _normalize_plan_focus(parsed)
+    return []
+
+
+def _build_planning_prompt(request_text: str, targets: list[str]) -> str:
+    target_text = ", ".join(targets[:MAX_PLAN_STEPS])
+    return (
+        "You are assisting a bounded repository inspection planner.\n"
+        "Return strict JSON only.\n"
+        "Schema:\n"
+        '{"focus": ["short focus item 1", "short focus item 2"]}\n'
+        "Rules:\n"
+        f"- At most 2 focus items.\n"
+        "- Keep each item under 120 characters.\n"
+        "- No tool selection, no file expansion, and no extra keys.\n"
+        "Validated request:\n"
+        f"{request_text}\n"
+        "Script-derived bounded targets:\n"
+        f"{target_text}\n"
+    )
+
+
+def build_bounded_plan_with_assist(request_text: str, targets: list[str]) -> dict[str, Any]:
+    code_plan = build_ordered_step_plan(request_text, targets=targets)
+
+    try:
+        from app.ai.llm_client import OllamaClientError, generate_answer
+    except Exception:
+        return {
+            "ordered_steps": code_plan,
+            "source": PLAN_SOURCE_OLLAMA_FALLBACK,
+            "fallback_reason": "ollama_client_unavailable",
+        }
+
+    planning_prompt = _build_planning_prompt(request_text, targets)
+
+    try:
+        raw_plan = generate_answer(planning_prompt)
+    except OllamaClientError:
+        return {
+            "ordered_steps": code_plan,
+            "source": PLAN_SOURCE_OLLAMA_FALLBACK,
+            "fallback_reason": "ollama_request_failed",
+        }
+    except Exception:
+        return {
+            "ordered_steps": code_plan,
+            "source": PLAN_SOURCE_OLLAMA_FALLBACK,
+            "fallback_reason": "ollama_unexpected_error",
+        }
+
+    planning_focus = _extract_assisted_planning_focus(raw_plan)
+    if not planning_focus:
+        return {
+            "ordered_steps": code_plan,
+            "source": PLAN_SOURCE_OLLAMA_FALLBACK,
+            "fallback_reason": "ollama_plan_unusable",
+        }
+
+    assisted_plan = build_ordered_step_plan(
+        request_text,
+        targets=targets,
+        planning_focus=planning_focus,
+    )
+    return {
+        "ordered_steps": assisted_plan,
+        "source": PLAN_SOURCE_OLLAMA_ASSISTED,
+        "fallback_reason": None,
+    }
 
 
 def _to_relative(path: Path) -> str:
@@ -380,9 +498,14 @@ def execute_read_only_inspection(targets: list[str]) -> dict[str, Any]:
 
 def build_response(request_text: str, errors: list[str]) -> dict[str, object]:
     accepted = not errors
+    planning_source = PLAN_SOURCE_CODE_ONLY
+    planning_fallback_reason: str | None = None
     if accepted:
-        ordered_steps = build_ordered_step_plan(request_text)
         targets = derive_focus_targets(request_text)
+        planning = build_bounded_plan_with_assist(request_text, targets)
+        ordered_steps = planning["ordered_steps"]
+        planning_source = planning["source"]
+        planning_fallback_reason = planning["fallback_reason"]
         inspection = execute_read_only_inspection(targets)
 
         if inspection["signals"]:
@@ -417,9 +540,9 @@ def build_response(request_text: str, errors: list[str]) -> dict[str, object]:
         execution_trace = []
 
     return {
-        "comparison_shape_version": "pilot1.v2",
+        "comparison_shape_version": "pilot1.v4",
         "pilot": "agentic_workflows",
-        "task": "78",
+        "task": "80",
         "entrypoint": "scripts/pilot_agentic_workflow.py",
         "accepted": accepted,
         "input": {
@@ -433,6 +556,8 @@ def build_response(request_text: str, errors: list[str]) -> dict[str, object]:
         "pilot_response": {
             "final_answer": final_answer,
             "ordered_steps": ordered_steps,
+            "planning_source": planning_source,
+            "planning_fallback_reason": planning_fallback_reason,
             "tools_used": tools_used,
             "files_inspected": files_inspected,
             "execution_trace": execution_trace,
