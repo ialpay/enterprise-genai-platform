@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+import re
 import sys
 from typing import Any
 
@@ -84,6 +85,7 @@ PLAN_SOURCE_OLLAMA_ASSISTED = "ollama_assisted"
 PLAN_SOURCE_OLLAMA_FALLBACK = "ollama_fallback_to_code"
 PLANNING_MODE_AUTO = "auto"
 PLANNING_MODE_CODE_ONLY = "code_only"
+PLACEHOLDER_FOCUS_PATTERN = re.compile(r"^(?:short\s+)?focus\s+item\s*\d*$", re.IGNORECASE)
 
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
@@ -203,6 +205,8 @@ def _normalize_plan_focus(raw_focus: object) -> list[str]:
         value = " ".join(item.split())
         if not value:
             continue
+        if PLACEHOLDER_FOCUS_PATTERN.fullmatch(value.strip(" .:-_\"'")):
+            continue
         normalized.append(value[:120])
         if len(normalized) == 2:
             break
@@ -232,10 +236,12 @@ def _build_planning_prompt(request_text: str, targets: list[str]) -> str:
         "You are assisting a bounded repository inspection planner.\n"
         "Return strict JSON only.\n"
         "Schema:\n"
-        '{"focus": ["short focus item 1", "short focus item 2"]}\n'
+        '{"focus": ["prioritize docs/status.md and docs/codex_tasks.md for baseline evidence", '
+        '"confirm read-only limits and bounded execution trace requirements"]}\n'
         "Rules:\n"
         f"- At most 2 focus items.\n"
         "- Keep each item under 120 characters.\n"
+        "- Do not echo schema placeholders like 'short focus item 1' or 'short focus item 2'.\n"
         "- No tool selection, no file expansion, and no extra keys.\n"
         "Validated request:\n"
         f"{request_text}\n"
