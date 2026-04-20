@@ -82,6 +82,8 @@ COMPARISON_LENS = ("usefulness", "task_completion", "operator_effort")
 PLAN_SOURCE_CODE_ONLY = "code_only"
 PLAN_SOURCE_OLLAMA_ASSISTED = "ollama_assisted"
 PLAN_SOURCE_OLLAMA_FALLBACK = "ollama_fallback_to_code"
+PLANNING_MODE_AUTO = "auto"
+PLANNING_MODE_CODE_ONLY = "code_only"
 
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
@@ -102,6 +104,15 @@ def parse_args() -> argparse.Namespace:
         "--run-first-comparison",
         action="store_true",
         help="Run Pilot 1 Task 79 first bounded comparison scenario.",
+    )
+    parser.add_argument(
+        "--planning-mode",
+        choices=(PLANNING_MODE_AUTO, PLANNING_MODE_CODE_ONLY),
+        default=PLANNING_MODE_AUTO,
+        help=(
+            "Planning path mode: 'auto' attempts bounded Ollama assistance with deterministic "
+            "fallback, while 'code_only' disables model planning."
+        ),
     )
     args = parser.parse_args()
     if not args.run_first_comparison and not args.request:
@@ -496,16 +507,25 @@ def execute_read_only_inspection(targets: list[str]) -> dict[str, Any]:
     }
 
 
-def build_response(request_text: str, errors: list[str]) -> dict[str, object]:
+def build_response(
+    request_text: str,
+    errors: list[str],
+    planning_mode: str = PLANNING_MODE_AUTO,
+) -> dict[str, object]:
     accepted = not errors
     planning_source = PLAN_SOURCE_CODE_ONLY
     planning_fallback_reason: str | None = None
     if accepted:
         targets = derive_focus_targets(request_text)
-        planning = build_bounded_plan_with_assist(request_text, targets)
-        ordered_steps = planning["ordered_steps"]
-        planning_source = planning["source"]
-        planning_fallback_reason = planning["fallback_reason"]
+        if planning_mode == PLANNING_MODE_CODE_ONLY:
+            ordered_steps = build_ordered_step_plan(request_text, targets=targets)
+            planning_source = PLAN_SOURCE_CODE_ONLY
+            planning_fallback_reason = None
+        else:
+            planning = build_bounded_plan_with_assist(request_text, targets)
+            ordered_steps = planning["ordered_steps"]
+            planning_source = planning["source"]
+            planning_fallback_reason = planning["fallback_reason"]
         inspection = execute_read_only_inspection(targets)
 
         if inspection["signals"]:
@@ -556,6 +576,7 @@ def build_response(request_text: str, errors: list[str]) -> dict[str, object]:
         "pilot_response": {
             "final_answer": final_answer,
             "ordered_steps": ordered_steps,
+            "planning_mode": planning_mode,
             "planning_source": planning_source,
             "planning_fallback_reason": planning_fallback_reason,
             "tools_used": tools_used,
@@ -694,7 +715,7 @@ def main() -> None:
     else:
         request_text = normalize_request(args.request)
         errors = validate_request(request_text)
-        response = build_response(request_text, errors)
+        response = build_response(request_text, errors, planning_mode=args.planning_mode)
     print(json.dumps(response, indent=2))
 
 

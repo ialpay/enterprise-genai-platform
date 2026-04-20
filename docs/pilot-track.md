@@ -75,6 +75,16 @@ Track pilot experiments for learning, comparison, and architectural fit assessme
   - Usefulness judgment: `pilot_more_useful = true` for operator visibility and traceability with equivalent task-completion outcome.
   - Decision: `continue`
 - Phase 2 planning question: Does planning-only Ollama assistance improve bounded repository inspection usefulness over the current shell-stage pilot without weakening control, traceability, or operator understanding?
+- Planning-phase comparison result (Task 81, pilot-only, 2026-04-16):
+  - Pilot-only note: This is an isolated pilot learning record and is not live baseline progress.
+  - Scenario used for both paths: "Analyze the current repository baseline and identify the next most reasonable implementation step using a bounded multi-step read-only workflow."
+  - Code-only planning run: `--planning-mode code_only` produced `planning_source = code_only` with the bounded 3-step script plan and one bounded `read_file_excerpt` inspection of `docs/codex_tasks.md`.
+  - Planning-assisted run: `--planning-mode auto` with bounded Ollama response produced `planning_source = ollama_assisted`; plan structure and execution stayed code-bounded, while step 2 added normalized model focus hints.
+  - Structure comparison: No material change. Both runs retained the same script-owned 3-step bounded plan shape and same tool/action caps.
+  - Focus comparison: Improved slightly in assisted mode because the step-2 details included explicit short-horizon focus hints while still constrained to script-derived targets.
+  - Operator usefulness comparison: Improved slightly for planning readability, but not materially for execution outcome because both runs inspected the same file and produced equivalent final-answer evidence.
+  - Decision: `continue`
+  - Decision rationale: Continue the pilot to gather more bounded scenarios before stronger claims; current evidence shows small planning readability gains without reduced control, but no clear execution-outcome gain yet.
 
 ### Conversational memory and context management
 - Purpose: Explore memory/context handling outside the live baseline to assess whether it improves assistant continuity without degrading control.
