@@ -218,6 +218,21 @@ Operating result:
 
 - The grounded `/ask` route now has minimal live governance and observability without introducing broader policy machinery
 
+## Step 18 — Pilot 1 Tasks 80-83: Assisted-Planning Hardening on the Isolated Pilot Path
+Completed tasks:
+
+- Recorded that `main` now contains Pilot 1 Tasks 80, 81, 82, and 83 on the isolated pilot path
+- Confirmed `docs/codex_tasks.md` records Tasks 82 and 83
+- Confirmed `scripts/pilot_agentic_workflow.py` compiles after the merged hardening work
+- Recorded verified deterministic fallback behavior when Ollama is unreachable
+- Recorded verified deterministic fallback behavior when Ollama returns unusable planning output
+- Recorded that the latest real pilot auto run on `main` fell back with `planning_source = ollama_fallback_to_code` and `planning_fallback_reason = ollama_plan_unusable`
+- Recorded that the local live baseline remained healthy during the same verification set: local start path worked, `/health` worked, and `/ask` still returned `grounded_retrieval`
+
+Operating result:
+
+- Pilot 1 assisted planning is now merged and hardened on its isolated entrypoint, but current evidence still supports only a cautious `continue` decision rather than promotion or baseline adoption
+
 ## Current Status
 Post-Milestone-3 baseline now includes:
 
@@ -236,4 +251,4 @@ Post-Milestone-3 baseline now includes:
 - Governance and protected-PR workflow baseline
 
 ## Next Step
-Run the Milestone 3 review gate, then only move forward once the minimally governed grounded baseline is formally confirmed.
+Run the Milestone 3 review gate, keep Pilot 1 isolated while gathering bounded stability/usefulness evidence, and only move forward on baseline milestones from the grounded `/ask` path.
