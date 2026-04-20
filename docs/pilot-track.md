@@ -85,6 +85,14 @@ Track pilot experiments for learning, comparison, and architectural fit assessme
   - Operator usefulness comparison: Improved slightly for planning readability, but not materially for execution outcome because both runs inspected the same file and produced equivalent final-answer evidence.
   - Decision: `continue`
   - Decision rationale: Continue the pilot to gather more bounded scenarios before stronger claims; current evidence shows small planning readability gains without reduced control, but no clear execution-outcome gain yet.
+- Post-merge Pilot 1 hardening state (Tasks 80-83 on `main`, 2026-04-20):
+  - Pilot-only note: This remains an isolated pilot learning record and is not live baseline progress.
+  - Merged pilot scope now present on `main`: Tasks 80, 81, 82, and 83 are recorded in `docs/codex_tasks.md`, and the isolated entrypoint remains `scripts/pilot_agentic_workflow.py`.
+  - Verified hardening facts: the pilot script compiles; deterministic fallback works when Ollama is unreachable; deterministic fallback works when Ollama returns unusable planning output.
+  - Latest real pilot auto-run reality check: in the recent verification set on `main`, the pilot returned `planning_source = ollama_fallback_to_code` and `planning_fallback_reason = ollama_plan_unusable`.
+  - Operational reading: assisted planning is available and hardened, but current repository evidence does not justify describing it as consistently successful or operationally reliable yet.
+  - Decision: `continue`
+  - Decision rationale: keep gathering bounded stability and usefulness evidence while preserving isolation, read-only control, and deterministic fallback behavior; do not treat the pilot as baseline-promoted or promotion-ready.
 
 ### Conversational memory and context management
 - Purpose: Explore memory/context handling outside the live baseline to assess whether it improves assistant continuity without degrading control.
