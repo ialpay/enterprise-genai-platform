@@ -4903,3 +4903,76 @@ Measure whether planning-only model assistance improves usefulness enough to jus
 
 - a planning-phase comparison result is recorded in `docs/pilot-track.md`
 - Pilot 1 remains clearly outside the official baseline lane
+
+## Task 82 — Harden assisted-plan parsing for safe near-JSON Ollama responses
+
+Improve the pilot’s planning-output parsing so harmless near-JSON model responses can still be accepted safely.
+
+### Goal
+
+Allow the assisted planning path to accept valid structured focus output even when the model wraps it in markdown fences or appends trailing commentary.
+
+### Modify
+
+- `scripts/pilot_agentic_workflow.py`
+- `tests/` only if direct task-local validation is needed
+
+### Do not modify
+
+- live `/ask` route behavior
+- `app/core/config.py`
+- live baseline docs
+- CI workflows
+
+### Requirements
+
+1. Keep Pilot 1 pilot-only, bounded, read-only, and script-controlled.
+2. Safely extract the first valid JSON object or array from mixed model output where practical.
+3. Accept only the existing bounded focus contract:
+   - object containing key `focus`
+   - or a raw list that normalizes into the existing bounded focus list
+4. Preserve deterministic fallback to code-only planning when the response is still unusable.
+5. Do not widen parsing into freeform prose interpretation.
+
+### Acceptance criteria
+
+- fenced JSON and JSON with trailing commentary can be accepted when they resolve cleanly to the bounded focus contract
+- invalid prose still falls back deterministically
+- no live-route changes are introduced
+
+## Task 83 — Prompt/output-quality hardening for assisted planning
+
+Improve the usefulness of assisted-planning focus hints without expanding Pilot 1 scope.
+
+### Goal
+
+Reduce schema-echo and placeholder-quality planning output so assisted planning yields more meaningful bounded focus hints.
+
+### Modify
+
+- `scripts/pilot_agentic_workflow.py`
+- `tests/` only if direct task-local validation is needed
+
+### Do not modify
+
+- live `/ask` route behavior
+- `app/core/config.py`
+- live baseline docs
+- CI workflows
+
+### Requirements
+
+1. Keep Pilot 1 pilot-only, bounded, read-only, and script-controlled.
+2. Improve the planning prompt and/or assisted-output validation so schema-placeholder text is not accepted as useful focus.
+3. Reject obvious placeholder/schema-echo items such as:
+   - `short focus item 1`
+   - `short focus item 2`
+   - similar low-value placeholder variants
+4. Preserve deterministic fallback to code-only planning when assisted output remains low-quality or unusable.
+5. Do not add retries, loops, tool expansion, or model-driven execution changes.
+
+### Acceptance criteria
+
+- placeholder/schema-echo focus output is rejected or falls back deterministically
+- real assisted planning can still succeed when focus output is useful
+- no live-route changes are introduced

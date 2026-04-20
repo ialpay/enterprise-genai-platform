@@ -86,6 +86,7 @@ PLAN_SOURCE_OLLAMA_FALLBACK = "ollama_fallback_to_code"
 PLANNING_MODE_AUTO = "auto"
 PLANNING_MODE_CODE_ONLY = "code_only"
 PLACEHOLDER_FOCUS_PATTERN = re.compile(r"^(?:short\s+)?focus\s+item\s*\d*$", re.IGNORECASE)
+JSON_FENCE_PATTERN = re.compile(r"```(?:json)?\s*(.*?)```", re.IGNORECASE | re.DOTALL)
 
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
@@ -213,17 +214,39 @@ def _normalize_plan_focus(raw_focus: object) -> list[str]:
     return normalized
 
 
-def _extract_assisted_planning_focus(raw_plan_text: str) -> list[str]:
-    cleaned = raw_plan_text.strip()
-    if not cleaned:
-        return []
+def _extract_first_json_object_or_array(raw_text: str) -> object | None:
+    if not raw_text.strip():
+        return None
 
-    try:
-        parsed = json.loads(cleaned)
-    except json.JSONDecodeError:
+    decoder = json.JSONDecoder()
+
+    def _decode_candidate(text: str) -> object | None:
+        for index, char in enumerate(text):
+            if char not in "{[":
+                continue
+            try:
+                parsed, _ = decoder.raw_decode(text[index:])
+            except json.JSONDecodeError:
+                continue
+            if isinstance(parsed, (dict, list)):
+                return parsed
+        return None
+
+    for candidate in [raw_text, *JSON_FENCE_PATTERN.findall(raw_text)]:
+        parsed = _decode_candidate(candidate)
+        if parsed is not None:
+            return parsed
+    return None
+
+
+def _extract_assisted_planning_focus(raw_plan_text: str) -> list[str]:
+    parsed = _extract_first_json_object_or_array(raw_plan_text)
+    if parsed is None:
         return []
 
     if isinstance(parsed, dict):
+        if "focus" not in parsed:
+            return []
         return _normalize_plan_focus(parsed.get("focus"))
     if isinstance(parsed, list):
         return _normalize_plan_focus(parsed)
