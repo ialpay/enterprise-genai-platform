@@ -4976,3 +4976,67 @@ Reduce schema-echo and placeholder-quality planning output so assisted planning 
 - placeholder/schema-echo focus output is rejected or falls back deterministically
 - real assisted planning can still succeed when focus output is useful
 - no live-route changes are introduced
+
+
+
+## Task 84 — Add Pilot 1 Phase 3 evidence runner
+
+Add the first bounded evidence runner for Pilot 1 Phase 3: Repeated Assisted-Planning Stability Round.
+
+### Goal
+
+Collect a small, repeatable evidence set on assisted-planning stability and operator usefulness across a few bounded repository scenarios, while preserving Pilot 1 isolation and deterministic fallback behavior.
+
+### Modify
+
+- `scripts/run_pilot_phase3_evidence.py`
+- `tests/` only if direct task-local validation is needed
+
+### Do not modify
+
+- live `/ask` route behavior
+- `app/api/routes.py`
+- `app/core/config.py`
+- `docs/status.md`
+- `docs/manual_progress.md`
+- `docs/roadmap.md`
+- `docs/pilot-track.md`
+- CI workflows
+
+### Requirements
+
+1. Keep the runner pilot-only, read-only, and isolated from the live baseline.
+2. Support exactly these bounded scenarios:
+   - next-step recommendation repeat
+   - live-governance summary repeat
+   - pilot-reliability summary repeat
+3. For each scenario:
+   - run one `code_only` control
+   - run repeated `auto` attempts with a small bounded count
+4. Record machine-readable per-run output including at least:
+   - `scenario_id`
+   - `planning_mode`
+   - `planning_source`
+   - `planning_fallback_reason`
+   - `tools_used`
+   - `files_inspected`
+   - `final_answer`
+5. Include compact scenario and overall summaries covering at least:
+   - assisted vs fallback counts
+   - boundedness invariant status
+   - simple repeat consistency indicators
+6. Keep runtime behavior bounded:
+   - no new tools
+   - no broader agent expansion
+   - no retries/loops beyond the explicit repeated evidence runs
+   - no live integration
+7. Keep the implementation small and reviewable.
+
+### Acceptance criteria
+
+- a pilot-only evidence runner exists for the three bounded Phase 3 scenarios
+- each scenario produces one `code_only` control and repeated `auto` attempts
+- output is machine-readable and includes compact summaries
+- boundedness invariants remain visible
+- no live-route behavior changes are introduced
+- Pilot 1 remains clearly outside the official baseline lane
