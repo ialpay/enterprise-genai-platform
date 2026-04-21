@@ -5040,3 +5040,53 @@ Collect a small, repeatable evidence set on assisted-planning stability and oper
 - boundedness invariants remain visible
 - no live-route behavior changes are introduced
 - Pilot 1 remains clearly outside the official baseline lane
+
+
+## Task 85 — Run Pilot 1 Phase 3 evidence round 2 and compare with round 1
+
+Run one more identical bounded evidence round for Pilot 1 Phase 3, then compare round 2 against round 1 before deciding whether Pilot 1 should continue, pause, or receive one narrow follow-up.
+
+### Goal
+
+Confirm whether assisted-planning behavior is stable enough across repeated bounded scenarios to justify any further pilot work.
+
+### Modify
+
+- `docs/pilot-track.md`
+- `tests/` only if direct task-local validation is needed
+- no code changes unless the comparison itself reveals a clearly scoped correction already required by accepted pilot rules
+
+### Do not modify
+
+- live `/ask` route behavior
+- `app/api/routes.py`
+- `app/core/config.py`
+- `docs/status.md`
+- `docs/manual_progress.md`
+- `docs/roadmap.md`
+- CI workflows
+
+### Requirements
+
+1. Reuse the existing Task 84 evidence runner and the same bounded scenario set.
+2. Run one more identical round with the same bounded attempt count used for round 1 unless explicitly justified otherwise.
+3. Compare round 1 and round 2 on at least:
+   - assisted vs fallback distribution
+   - fallback reasons
+   - boundedness invariants
+   - repeat consistency
+   - operator usefulness indicators
+4. Record a pilot-only decision:
+   - continue
+   - pause
+   - narrow_follow_up
+   - promotion_candidate
+5. Keep Pilot 1 isolated and do not treat the result as baseline progress.
+
+### Acceptance criteria
+
+- round 2 is executed with the same bounded structure as round 1
+- round 1 and round 2 are compared explicitly
+- a pilot-only decision is recorded in `docs/pilot-track.md`
+- no live-route behavior changes are introduced
+- Pilot 1 remains clearly outside the official baseline lane
