@@ -93,6 +93,28 @@ Track pilot experiments for learning, comparison, and architectural fit assessme
   - Operational reading: assisted planning is available and hardened, but current repository evidence does not justify describing it as consistently successful or operationally reliable yet.
   - Decision: `continue`
   - Decision rationale: keep gathering bounded stability and usefulness evidence while preserving isolation, read-only control, and deterministic fallback behavior; do not treat the pilot as baseline-promoted or promotion-ready.
+- Phase 3 repeated evidence round 2 comparison (Task 85, pilot-only, 2026-04-21):
+  - Pilot-only note: This comparison is isolated Pilot 1 evidence and is not live baseline progress.
+  - Evidence structure reused: `scripts/run_pilot_phase3_evidence.py` with the same bounded setup for both rounds (3 scenarios, 1 `code_only` control per scenario, and 3 `auto` attempts per scenario).
+  - Round 1 summary:
+    - Assisted vs fallback distribution: `8` assisted, `1` fallback (of `9` auto runs).
+    - Fallback reasons: `ollama_plan_unusable = 1`.
+    - Boundedness invariants: `overall_boundedness_invariants_held = true`.
+    - Repeat consistency: `all_scenarios_auto_source_consistent = false`; `all_scenarios_auto_answer_consistent = true`.
+    - Operator usefulness indicators: `control_trace_visible = true`; `auto_trace_visible_rate = 1.0`; `auto_non_empty_final_answer_rate = 1.0`.
+  - Round 2 summary:
+    - Assisted vs fallback distribution: `8` assisted, `1` fallback (of `9` auto runs).
+    - Fallback reasons: `ollama_plan_unusable = 1`.
+    - Boundedness invariants: `overall_boundedness_invariants_held = true`.
+    - Repeat consistency: `all_scenarios_auto_source_consistent = false`; `all_scenarios_auto_answer_consistent = true`.
+    - Operator usefulness indicators: `control_trace_visible = true`; `auto_trace_visible_rate = 1.0`; `auto_non_empty_final_answer_rate = 1.0`.
+  - Comparison reading:
+    - Distribution and fallback reason remained unchanged between rounds.
+    - The single fallback moved scenario location across rounds, so assisted behavior remains mixed rather than stably all-assisted.
+    - Boundedness and operator-visibility indicators remained stable and strong.
+    - Final-answer consistency remained stable across repeated auto attempts.
+  - Decision: `narrow_follow_up`
+  - Decision rationale: keep Pilot 1 isolated and continue only one narrowly scoped follow-up on reducing `ollama_plan_unusable` incidence under the same bounded controls; current evidence does not support `promotion_candidate`.
 
 ### Conversational memory and context management
 - Purpose: Explore memory/context handling outside the live baseline to assess whether it improves assistant continuity without degrading control.
