@@ -5090,3 +5090,218 @@ Confirm whether assisted-planning behavior is stable enough across repeated boun
 - a pilot-only decision is recorded in `docs/pilot-track.md`
 - no live-route behavior changes are introduced
 - Pilot 1 remains clearly outside the official baseline lane
+
+
+## Milestone 4 — Evaluation Maturity Expansion
+
+### Meaningful achievement
+
+The grounded, minimally governed `/ask` baseline gains broader, more decision-useful evaluation coverage so future baseline changes can be judged against a stronger evidence base.
+
+### Milestone completion rule
+
+Milestone 4 is complete only when Tasks 86 through 90 are accepted, verified where applicable, and the milestone review meeting is held.
+
+## Task 86 — Expand the evaluation dataset for the live baseline
+
+Broaden the evaluation dataset so it better reflects the current grounded and minimally governed `/ask` behavior.
+
+### Goal
+
+Improve coverage across the current live baseline without changing live route behavior.
+
+### Modify
+
+- `data/evaluation/eval_questions.json`
+
+### Do not modify
+
+- `app/api/routes.py`
+- `app/core/config.py`
+- retrieval logic
+- prompting logic
+- ingestion logic
+- `docs/status.md`
+- `docs/manual_progress.md`
+- `docs/roadmap.md`
+- CI workflows
+
+### Requirements
+
+1. Expand the dataset to cover the current live baseline more broadly.
+2. Include a balanced spread of:
+   - grounded answerable questions
+   - insufficient-information questions
+   - governance-aware questions relevant to the current route behavior
+3. Preserve the current dataset structure unless a small additive field is clearly needed.
+4. Keep the dataset practical and reviewable; do not turn it into a large benchmark project.
+
+### Acceptance criteria
+
+- evaluation coverage is broader than the current baseline set
+- the dataset remains valid and readable
+- no live-route behavior changes are introduced
+
+
+## Task 87 — Improve evaluation reporting for operator usefulness
+
+Make evaluation output easier to interpret for repeated baseline review.
+
+### Goal
+
+Turn the evaluation runner output into something more useful for quick review, comparison, and decision-making.
+
+### Modify
+
+- `scripts/run_eval.py`
+
+### Do not modify
+
+- `app/api/routes.py`
+- retrieval logic
+- prompting logic
+- ingestion logic
+- `docs/status.md`
+- `docs/manual_progress.md`
+- `docs/roadmap.md`
+- CI workflows
+
+### Requirements
+
+1. Preserve current evaluation behavior and keep the runner deterministic.
+2. Improve the printed summary so a reviewer can quickly understand:
+   - total question coverage
+   - answerability patterns
+   - insufficient-information handling
+   - notable misses
+3. Keep the output concise and practical.
+4. Do not introduce LLM-based scoring or broad new dependencies.
+
+### Acceptance criteria
+
+- evaluation output is easier to interpret than before
+- the runner remains deterministic and lightweight
+- no live-route behavior changes are introduced
+
+
+## Task 88 — Add classification-aware and safety-aware evaluation measurement
+
+Extend evaluation so it measures the current route’s governance-related behavior more explicitly.
+
+### Goal
+
+Make evaluation reflect not only answer quality, but also the live route’s current request-classification and safety-handling baseline.
+
+### Modify
+
+- `data/evaluation/eval_questions.json`
+- `scripts/run_eval.py`
+- `tests/` only if direct task-local validation is needed
+
+### Do not modify
+
+- `app/api/routes.py`
+- retrieval logic
+- prompting logic
+- ingestion logic
+- `docs/status.md`
+- `docs/manual_progress.md`
+- `docs/roadmap.md`
+- CI workflows
+
+### Requirements
+
+1. Reflect the current live request classes in evaluation where practical.
+2. Add coverage for questions that exercise:
+   - normal grounded behavior
+   - suspicious override handling
+   - hidden-instruction handling
+3. Keep classification-aware measurement tied to the current implemented route behavior.
+4. Do not invent a broader policy model than the one currently live.
+
+### Acceptance criteria
+
+- evaluation now covers the current classification/safety baseline more explicitly
+- results remain deterministic and reviewable
+- no live-route behavior changes are introduced
+
+
+## Task 89 — Add machine-readable evaluation summary for future baseline comparison
+
+Add a small machine-readable summary output so future baseline changes can be compared more reliably.
+
+### Goal
+
+Create a stable comparison surface for later governance and retrieval milestones.
+
+### Modify
+
+- `scripts/run_eval.py`
+- `tests/` only if direct task-local validation is needed
+
+### Do not modify
+
+- `app/api/routes.py`
+- retrieval logic
+- prompting logic
+- ingestion logic
+- `docs/status.md`
+- `docs/manual_progress.md`
+- `docs/roadmap.md`
+- CI workflows
+
+### Requirements
+
+1. Preserve the human-readable evaluation output.
+2. Add a small machine-readable summary output that captures the most important evaluation signals.
+3. Keep the summary structure simple, stable, and review-friendly.
+4. Do not turn this into a large reporting framework.
+
+### Acceptance criteria
+
+- evaluation produces a compact machine-readable summary
+- the summary is suitable for future baseline comparison
+- no live-route behavior changes are introduced
+
+
+## Task 90 — Milestone 4 historian update
+
+Record the accepted Milestone 4 changes in project memory after merge.
+
+### Goal
+
+Advance the repository’s recorded truth only after the evaluation-maturity milestone is actually merged.
+
+### Modify
+
+- `docs/status.md`
+- `docs/roadmap.md`
+- `docs/manual_progress.md`
+- `docs/architecture-decisions.md` only if a real design decision changed
+
+### Do not modify
+
+- application code
+- tests
+- CI workflows
+- prompts
+
+### Requirements
+
+1. Record only the accepted and merged Milestone 4 work.
+2. Reflect the stronger evaluation baseline accurately without overstating future governance or retrieval maturity.
+3. Do not record speculative future work as complete.
+
+### Acceptance criteria
+
+- post-Milestone-4 state/history docs reflect the real merged evaluation baseline
+- no speculative future work is recorded as complete
+
+
+### Milestone 4 review gate
+
+Before authorizing Milestone 5, Planner and Owner review:
+
+- whether the evaluation baseline is now broad enough to guide the next stage safely
+- whether governance / observability hardening is the right next milestone
+- whether the live baseline remains clearly separated from pilot work
